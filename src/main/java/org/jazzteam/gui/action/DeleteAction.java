@@ -2,9 +2,8 @@ package org.jazzteam.gui.action;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.gui.event.DeleteEvent;
-import org.jazzteam.gui.table.TaskTable;
-import org.jazzteam.mapper.TaskMapper;
-import org.jazzteam.repository.TaskRepository;
+import org.jazzteam.gui.table.TaskTableModel;
+import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
 
 @RequiredArgsConstructor
@@ -16,13 +15,12 @@ public class DeleteAction implements TaskAction {
 
     @Override
     public void execute(
-            TaskTable taskTable,
-            TaskRepository taskRepository,
-            TaskMapper taskMapper,
+            TaskTableModel taskTableModel,
+            TaskService taskService,
             ApplicationEventPublisher applicationEventPublisher) {
         // Avoids unnecessary down casting
         DeleteEvent deleteEvent = new DeleteEvent(this, deletedTaskId);
         applicationEventPublisher.publishEvent(deleteEvent);
-        taskTable.getTableModel().removeRow(selectedRow);
+        taskTableModel.removeRow(selectedRow);
     }
 }

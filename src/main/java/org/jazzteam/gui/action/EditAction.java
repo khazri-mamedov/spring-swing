@@ -3,13 +3,12 @@ package org.jazzteam.gui.action;
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.ExecutorDto;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.table.TaskTable;
+import org.jazzteam.gui.event.EditEvent;
 import org.jazzteam.gui.table.TaskTableModel;
-import org.jazzteam.mapper.TaskMapper;
-import org.jazzteam.repository.TaskRepository;
+import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.awt.EventQueue;
+import java.awt.*;
 
 @RequiredArgsConstructor
 public class EditAction implements TaskAction {
@@ -20,13 +19,13 @@ public class EditAction implements TaskAction {
 
     @Override
     public void execute(
-            TaskTable taskTable,
-            TaskRepository taskRepository,
-            TaskMapper taskMapper,
+            TaskTableModel taskTableModel,
+            TaskService taskService,
             ApplicationEventPublisher applicationEventPublisher) {
-        TaskTableModel taskTableModel = taskTable.getTableModel();
         taskTableModel.getTasks().set(selectedRow, updatedTaskDto);
         ExecutorDto executorDto = updatedTaskDto.getExecutor();
+        EditEvent editEvent = new EditEvent(this, updatedTaskDto);
+        applicationEventPublisher.publishEvent(editEvent);
         EventQueue.invokeLater(() -> {
             taskTableModel.setValueAt(updatedTaskDto.getName(), selectedRow, 0);
             taskTableModel.setValueAt(updatedTaskDto.getDescription(), selectedRow, 1);
@@ -36,5 +35,6 @@ public class EditAction implements TaskAction {
                     2
             );
         });
+
     }
 }

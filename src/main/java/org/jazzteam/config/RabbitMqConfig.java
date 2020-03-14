@@ -1,6 +1,6 @@
 package org.jazzteam.config;
 
-import org.jazzteam.gui.MainForm;
+import org.jazzteam.service.TaskService;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -54,9 +54,9 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    MessageListenerAdapter listenerAdapter(MainForm receiver) {
+    MessageListenerAdapter listenerAdapter(TaskService taskService) {
         // MessageListenerAdapter.defaultListenerMethod = "handleMessage"
-        return new MessageListenerAdapter(receiver);
+        return new MessageListenerAdapter(taskService);
     }
 
     /**

@@ -1,14 +1,9 @@
 package org.jazzteam.gui.action;
 
 import lombok.RequiredArgsConstructor;
-import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.table.TaskTable;
-import org.jazzteam.mapper.TaskMapper;
-import org.jazzteam.model.TaskEntity;
-import org.jazzteam.repository.TaskRepository;
+import org.jazzteam.gui.table.TaskTableModel;
+import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
-
-import javax.persistence.EntityNotFoundException;
 
 @RequiredArgsConstructor
 public class CreateAction implements TaskAction {
@@ -18,13 +13,9 @@ public class CreateAction implements TaskAction {
 
     @Override
     public void execute(
-            TaskTable taskTable,
-            TaskRepository taskRepository,
-            TaskMapper taskMapper,
+            TaskTableModel taskTableModel,
+            TaskService taskService,
             ApplicationEventPublisher applicationEventPublisher) {
-        TaskEntity taskEntity
-                = taskRepository.findById(savedTaskEntityId).orElseThrow(EntityNotFoundException::new);
-        TaskDto savedTaskDto = taskMapper.toDto(taskEntity);
-        taskTable.getTableModel().addRow(savedTaskDto);
+        taskTableModel.addRow(taskService.getById(savedTaskEntityId));
     }
 }

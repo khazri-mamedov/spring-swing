@@ -1,0 +1,113 @@
+package org.jazzteam.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.jazzteam.dto.TaskDto;
+import org.jazzteam.gui.action.CreateAction;
+import org.jazzteam.gui.action.DeleteAction;
+import org.jazzteam.gui.action.EditAction;
+import org.jazzteam.gui.action.TaskAction;
+import org.jazzteam.gui.table.TaskTableModel;
+import org.jazzteam.mapper.TaskMapper;
+import org.jazzteam.model.TaskEntity;
+import org.jazzteam.repository.TaskRepository;
+import org.jazzteam.service.TaskService;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class TaskServiceImpl implements TaskService {
+    @Value("${message.broker.exchange.name}")
+    private String exchangeName;
+
+    private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
+    private final ExecutorService executorService;
+    private final AmqpTemplate amqpTemplate;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    private TaskTableModel taskTableModel;
+
+    /**
+     * Message listener registered @org.jazzteam.config.RabbitMqConfig
+     *
+     * @param taskAction execute logic
+     */
+    public void handleMessage(TaskAction taskAction) {
+        taskAction.execute(taskTableModel, this, applicationEventPublisher);
+    }
+
+    @Override
+    public TaskTableModel createAndPopulateTaskTableModel() {
+        taskTableModel = new TaskTableModel(
+                new String[]{"Name", "Description", "Executor", "Executed At"},
+                0
+        );
+
+        List<TaskDto> tasks = getAllTasks();
+        tasks.forEach(taskTableModel::addRow);
+        return taskTableModel;
+    }
+
+    @Override
+    public List<TaskDto> getAllTasks() {
+        return taskRepository.findAll()
+                .stream().map(taskMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteSelectedTask(int rowIndex) {
+        executorService.execute(() -> {
+            TaskDto selectedTaskDto = taskTableModel.getTasks().get(rowIndex);
+            deleteById(selectedTaskDto.getId());
+            TaskAction taskAction = new DeleteAction(rowIndex, selectedTaskDto.getId());
+            produceMessage(taskAction);
+        });
+    }
+
+    @Override
+    public void deleteById(int id) {
+        taskRepository.deleteById(id);
+    }
+
+    @Override
+    public TaskDto getSelectedTask(int rowIndex) {
+        return taskTableModel.getTasks().get(rowIndex);
+    }
+
+    @Override
+    public void updateTask(TaskDto taskDto, int rowIndex) {
+        executorService.execute(() -> {
+            TaskEntity updatedTaskEntity = taskRepository.save(taskMapper.toEntity(taskDto));
+            TaskDto updatedTaskDto = taskMapper.toDto(updatedTaskEntity);
+            TaskAction taskAction = new EditAction(updatedTaskDto, rowIndex);
+            produceMessage(taskAction);
+        });
+    }
+
+    @Override
+    public void createTask(TaskDto taskDto) {
+        executorService.execute(() -> {
+            TaskEntity savedTaskEntity = taskRepository.save(taskMapper.toEntity(taskDto));
+            TaskAction taskAction = new CreateAction(savedTaskEntity.getId());
+            produceMessage(taskAction);
+        });
+    }
+
+    @Override
+    public TaskDto getById(int id) {
+        TaskEntity taskEntity = taskRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        return taskMapper.toDto(taskEntity);
+    }
+
+    private void produceMessage(TaskAction taskAction) {
+        amqpTemplate.convertAndSend(exchangeName, "", taskAction);
+    }
+}

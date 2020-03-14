@@ -2,14 +2,9 @@ package org.jazzteam.gui.table;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.action.EditAction;
-import org.jazzteam.gui.action.TaskAction;
 import org.jazzteam.gui.event.DeleteEvent;
-import org.jazzteam.mapper.TaskMapper;
-import org.jazzteam.model.TaskEntity;
-import org.jazzteam.repository.TaskRepository;
-import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.beans.factory.annotation.Value;
+import org.jazzteam.gui.event.EditEvent;
+import org.jazzteam.service.TaskService;
 import org.springframework.context.MessageSource;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -20,19 +15,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 
 @RequiredArgsConstructor
 @Component
 public class EditModal extends JDialog {
-    @Value("${message.broker.exchange.name}")
-    private String exchangeName;
 
     private final MessageSource messageSource;
-    private final AmqpTemplate amqpTemplate;
-    private final TaskRepository taskRepository;
-    private final TaskMapper taskMapper;
-    private final ExecutorService executorService;
+    private final TaskService taskService;
 
     private JButton editButton;
     private Locale defaultLocale;
@@ -45,7 +34,7 @@ public class EditModal extends JDialog {
 
     @PostConstruct
     private void initUi() {
-        setTitle(messageSource.getMessage("create.dialog.layout", null, defaultLocale));
+        setTitle(messageSource.getMessage("edit.dialog.layout", null, defaultLocale));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(500, 500);
 
@@ -68,11 +57,29 @@ public class EditModal extends JDialog {
 
     @EventListener
     public void disposeIfDeleted(DeleteEvent deleteEvent) {
-        if (Objects.nonNull(selectedTaskDto) && selectedTaskDto.getId() == deleteEvent.getDeletedTaskId()) {
+        if (Objects.nonNull(selectedTaskDto) && (selectedTaskDto.getId() == deleteEvent.getDeletedTaskId())) {
             final String closed = messageSource.getMessage("edit.closed.delete", null, defaultLocale);
             JOptionPane.showMessageDialog(null, closed);
             dispose();
         }
+    }
+
+    @EventListener
+    public void notifyAndUpdate(EditEvent editEvent) {
+        TaskDto editedTaskDto = editEvent.getEditedTaskDto();
+        if (Objects.nonNull(selectedTaskDto)
+                && (selectedTaskDto.getId().equals(editedTaskDto.getId()))) {
+            final String edited = messageSource.getMessage("edited.before", null, defaultLocale);
+            JOptionPane.showMessageDialog(null, edited);
+            setFields(editedTaskDto);
+        }
+    }
+
+    @Override
+    public void dispose() {
+        // Singleton component needs null out state
+        selectedTaskDto = null;
+        super.dispose();
     }
 
     public void showDialog(TaskDto taskDto, int selectedRow) {
@@ -85,9 +92,7 @@ public class EditModal extends JDialog {
 
 
     private void populateEditFormPanel() {
-        nameField.setText(selectedTaskDto.getName());
-        descriptionField.setText(selectedTaskDto.getDescription());
-        executorField.setText(selectedTaskDto.getExecutor().getId().toString());
+        setFields(selectedTaskDto);
     }
 
     private void setEditButtonListener() {
@@ -98,16 +103,13 @@ public class EditModal extends JDialog {
         selectedTaskDto.setName(nameField.getText());
         selectedTaskDto.setDescription(descriptionField.getText());
         selectedTaskDto.getExecutor().setId(Integer.parseInt(executorField.getText()));
-        executorService.execute(() -> {
-            TaskEntity updatedTaskEntity = taskRepository.save(taskMapper.toEntity(selectedTaskDto));
-            TaskDto updatedTaskDto = taskMapper.toDto(updatedTaskEntity);
-            TaskAction taskAction = new EditAction(updatedTaskDto, selectedRow);
-            produceEditMessage(taskAction);
-        });
+        taskService.updateTask(selectedTaskDto, selectedRow);
         dispose();
     }
 
-    private void produceEditMessage(TaskAction taskAction) {
-        amqpTemplate.convertAndSend(exchangeName, "", taskAction);
+    private void setFields(TaskDto taskDto) {
+        nameField.setText(taskDto.getName());
+        descriptionField.setText(taskDto.getDescription());
+        executorField.setText(taskDto.getExecutor().getId().toString());
     }
 }
