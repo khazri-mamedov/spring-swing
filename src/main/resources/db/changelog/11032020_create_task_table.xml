@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="Khazri_Mamedov" id="11032020_create_task_table">
+        <createTable tableName="task">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" unique="true"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(1024)"/>
+            <column name="executor_id" type="int">
+                <constraints nullable="false" foreignKeyName="fk_task_executor" references="executor(id)" />
+            </column>
+            <column name="executed_at" type="date">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
