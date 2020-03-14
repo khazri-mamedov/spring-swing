@@ -15,6 +15,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Locale;
@@ -23,7 +24,6 @@ import java.util.concurrent.ExecutorService;
 
 @RequiredArgsConstructor
 @Component
-//@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class EditModal extends JDialog {
     @Value("${message.broker.exchange.name}")
     private String exchangeName;
@@ -35,15 +35,42 @@ public class EditModal extends JDialog {
     private final ExecutorService executorService;
 
     private JButton editButton;
-    private Locale locale = LocaleContextHolder.getLocale();
+    private Locale defaultLocale;
     private TaskDto selectedTaskDto;
     private int selectedRow;
 
-    private JTextField nameField, executorField, descriptionField;
+    private JTextField nameField;
+    private JTextField executorField;
+    private JTextField descriptionField;
+
+    @PostConstruct
+    private void initUi() {
+        setTitle(messageSource.getMessage("create.dialog.layout", null, defaultLocale));
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setSize(500, 500);
+
+        defaultLocale = LocaleContextHolder.getLocale();
+        JPanel editFormPanel = new JPanel(new FlowLayout());
+
+        editButton = new JButton(messageSource.getMessage("edit.button", null, defaultLocale));
+        nameField = new JTextField(30);
+        descriptionField = new JTextField(30);
+        executorField = new JTextField(30);
+
+        editFormPanel.add(nameField);
+        editFormPanel.add(descriptionField);
+        editFormPanel.add(executorField);
+        editFormPanel.add(editButton);
+        setEditButtonListener();
+        add(editFormPanel);
+        setModal(true);
+    }
 
     @EventListener
     public void disposeIfDeleted(DeleteEvent deleteEvent) {
         if (Objects.nonNull(selectedTaskDto) && selectedTaskDto.getId() == deleteEvent.getDeletedTaskId()) {
+            final String closed = messageSource.getMessage("edit.closed.delete", null, defaultLocale);
+            JOptionPane.showMessageDialog(null, closed);
             dispose();
         }
     }
@@ -52,39 +79,15 @@ public class EditModal extends JDialog {
         this.selectedTaskDto = taskDto;
         this.selectedRow = selectedRow;
 
-        setTitle(messageSource.getMessage("create.dialog.layout", null, locale));
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(500, 500);
-
-        JPanel editFormPanel = new JPanel();
-        editFormPanel.setLayout(new FlowLayout());
-
-
-        populateEditFormPanel(editFormPanel);
-
-
-        add(editFormPanel);
-        setModal(true);
+        populateEditFormPanel();
         setVisible(true);
     }
 
-    private void populateEditFormPanel(JPanel editFormPanel) {
-        editButton = new JButton(messageSource.getMessage("edit.button", null, locale));
 
-        nameField = new JTextField(30);
-        descriptionField = new JTextField(30);
-        executorField = new JTextField(30);
-
+    private void populateEditFormPanel() {
         nameField.setText(selectedTaskDto.getName());
         descriptionField.setText(selectedTaskDto.getDescription());
         executorField.setText(selectedTaskDto.getExecutor().getId().toString());
-
-        setEditButtonListener();
-
-        editFormPanel.add(nameField);
-        editFormPanel.add(descriptionField);
-        editFormPanel.add(executorField);
-        editFormPanel.add(editButton);
     }
 
     private void setEditButtonListener() {

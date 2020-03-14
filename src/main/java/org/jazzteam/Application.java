@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 @SpringBootApplication
 public class Application {
     @Bean
-    public ExecutorService executorService() {
+    ExecutorService executorService() {
         // Cached thread pool is acceptable because of one GUI client
         return Executors.newCachedThreadPool();
     }

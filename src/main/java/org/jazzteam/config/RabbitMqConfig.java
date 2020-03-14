@@ -1,11 +1,7 @@
 package org.jazzteam.config;
 
 import org.jazzteam.gui.MainForm;
-import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.FanoutExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
@@ -28,7 +24,7 @@ public class RabbitMqConfig {
     private String queueName = UUID.randomUUID().toString();
 
     @Bean
-    public Queue testAppQueue() {
+    Queue testAppQueue() {
         return new Queue(queueName, false);
     }
 
@@ -38,12 +34,12 @@ public class RabbitMqConfig {
      * @return simple org.springframework.amqp.core.FanoutExchange bean
      */
     @Bean
-    public FanoutExchange exchange() {
+    FanoutExchange exchange() {
         return new FanoutExchange(exchangeName);
     }
 
     @Bean
-    public Binding testAppBinding(Queue testAppQueue, FanoutExchange exchange) {
+    Binding testAppBinding(Queue testAppQueue, FanoutExchange exchange) {
         return BindingBuilder.bind(testAppQueue).to(exchange);
     }
 
@@ -67,7 +63,7 @@ public class RabbitMqConfig {
      * Creates queues on startup instead of first producer
      */
     @Bean
-    public InitializingBean prepareQueues(AmqpAdmin amqpAdmin) {
+    InitializingBean prepareQueues(AmqpAdmin amqpAdmin) {
         return () -> {
             Queue queue = testAppQueue();
             FanoutExchange exchange = exchange();
