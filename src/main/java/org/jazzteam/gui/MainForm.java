@@ -30,6 +30,8 @@ public class MainForm extends JFrame {
     private JButton createButton;
     private JButton deleteButton;
     private JButton editButton;
+    private JButton upButton;
+    private JButton downButton;
 
     private Locale locale = LocaleContextHolder.getLocale();
 
@@ -54,6 +56,8 @@ public class MainForm extends JFrame {
         createButton = new JButton(messageSource.getMessage("create.button", null, locale));
         editButton = new JButton(messageSource.getMessage("edit.button", null, locale));
         deleteButton = new JButton(messageSource.getMessage("delete.button", null, locale));
+        upButton = new JButton(messageSource.getMessage("up.button", null, locale));
+        downButton = new JButton(messageSource.getMessage("down.button", null, locale));
 
         setCreateButtonListener();
         setEditButtonListener();
@@ -62,6 +66,8 @@ public class MainForm extends JFrame {
         headButtonsPanel.add(createButton);
         headButtonsPanel.add(editButton);
         headButtonsPanel.add(deleteButton);
+        headButtonsPanel.add(upButton);
+        headButtonsPanel.add(downButton);
     }
 
     private void setCreateButtonListener() {
