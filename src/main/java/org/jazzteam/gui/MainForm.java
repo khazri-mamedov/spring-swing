@@ -3,6 +3,7 @@ package org.jazzteam.gui;
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
 import org.jazzteam.gui.event.CreateEvent;
+import org.jazzteam.gui.event.MoveEvent;
 import org.jazzteam.gui.table.CreateModal;
 import org.jazzteam.gui.table.EditModal;
 import org.jazzteam.gui.table.TaskTable;
@@ -61,6 +62,17 @@ public class MainForm extends JFrame {
         EventQueue.invokeLater(() -> taskTable.setModel(taskTableModel));
     }
 
+    @EventListener
+    public void selectedRowChanged(MoveEvent moveEvent) {
+        int selectedRow = moveEvent.getSelectedRow();
+        EventQueue.invokeLater(() -> {
+            int currentSelectedRow = taskTable.getSelectedRow();
+            if (selectedRow + 1 == currentSelectedRow) {
+                taskTable.setRowSelectionInterval(selectedRow, selectedRow);
+            }
+        });
+    }
+
     private void populateHeadButtonsPanel() {
         createButton = new JButton(messageSource.getMessage("create.button", null, locale));
         editButton = new JButton(messageSource.getMessage("edit.button", null, locale));
@@ -107,7 +119,8 @@ public class MainForm extends JFrame {
         upButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (!isFirstRow(selectedRow)) {
-                taskService.moveUpTask(selectedRow);
+                TaskDto selectedTaskDto = taskService.getSelectedTask(selectedRow);
+                taskService.moveUpTask(selectedRow, selectedTaskDto);
             }
         });
     }

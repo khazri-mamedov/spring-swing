@@ -14,6 +14,6 @@ public interface TaskService {
     void updateTask(TaskDto taskDto, int rowIndex);
     void createTask(TaskDto taskDto);
     TaskTableModel createAndRepopulateModel();
-    void moveUpTask(int rowIndex);
+    void moveUpTask(int selectedRowIndex, TaskDto selectedTaskDto);
 
 }

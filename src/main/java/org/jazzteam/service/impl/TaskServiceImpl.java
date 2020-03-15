@@ -2,10 +2,7 @@ package org.jazzteam.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.action.CreateAction;
-import org.jazzteam.gui.action.DeleteAction;
-import org.jazzteam.gui.action.EditAction;
-import org.jazzteam.gui.action.TaskAction;
+import org.jazzteam.gui.action.*;
 import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.mapper.TaskMapper;
 import org.jazzteam.model.TaskEntity;
@@ -17,6 +14,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -105,9 +103,27 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void moveUpTask(int rowIndex) {
-//        int upRowIndex = rowIndex - 1;
-//        Collections.swap(taskTableModel.getTasks(), rowIndex, upRowIndex);
+    public void moveUpTask(int selectedRowIndex, TaskDto selectedTaskDto) {
+        int upRowIndex = selectedRowIndex - 1;
+        //int nextRowIndex = selectedRowIndex + 1;
+        final TaskDto prevTaskDto = getSelectedTask(upRowIndex);
+        //final TaskDto nextTaskDto = taskTableModel.getTasks().get(nextRowIndex);
+        swapTasks(selectedRowIndex, upRowIndex, prevTaskDto, selectedTaskDto);
+        executorService.execute(() -> {
+            TaskEntity prevTaskEntity = taskMapper.toEntity(prevTaskDto);
+            TaskEntity selectedTaskEntity = taskMapper.toEntity(selectedTaskDto);
+            taskRepository.updateOrders(prevTaskEntity, selectedTaskEntity);
+            TaskAction taskAction
+                    = new MoveAction(selectedRowIndex, selectedTaskEntity.getOrderId(), prevTaskEntity.getOrderId());
+            produceMessage(taskAction);
+        });
+    }
+
+    private void swapTasks(int selectedRowIndex, int upRowIndex, TaskDto prevTaskDto, TaskDto selectedTaskDto) {
+        Collections.swap(taskTableModel.getTasks(), upRowIndex, selectedRowIndex);
+        int swapOrderId = prevTaskDto.getOrderId();
+        prevTaskDto.setOrderId(selectedTaskDto.getOrderId());
+        selectedTaskDto.setOrderId(swapOrderId);
     }
 
     private void produceMessage(TaskAction taskAction) {
