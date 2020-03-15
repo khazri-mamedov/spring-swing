@@ -90,16 +90,15 @@ public class TaskServiceImpl implements TaskService {
     public void createTask(TaskDto taskDto) {
         executorService.execute(() -> {
             TaskEntity savedTaskEntity = taskRepository.save(taskMapper.toEntity(taskDto));
-            TaskAction taskAction = new CreateAction(savedTaskEntity.getId());
+            TaskDto savedTaskDto = taskMapper.toDto(taskRepository.findByIdOrThrow(savedTaskEntity.getId()));
+            TaskAction taskAction = new CreateAction(savedTaskDto);
             produceMessage(taskAction);
         });
     }
 
     @Override
-    public TaskTableModel createAndRepopulateModel() {
-        // Mark eligible for GC
-        taskTableModel.getTasks().clear();
-        return createAndPopulateTaskTableModel();
+    public void addTask(TaskDto savedTaskDto) {
+        taskTableModel.insertRow(savedTaskDto);
     }
 
     @Override

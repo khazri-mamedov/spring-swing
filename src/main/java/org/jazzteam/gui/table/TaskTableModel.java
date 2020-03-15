@@ -4,8 +4,11 @@ import lombok.Getter;
 import org.jazzteam.dto.TaskDto;
 
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class TaskTableModel extends DefaultTableModel {
@@ -30,19 +33,34 @@ public class TaskTableModel extends DefaultTableModel {
      */
     public void addRow(TaskDto taskDto) {
         tasks.add(taskDto);
-        Object[] task = new Object[]{
-                taskDto.getName(),
-                taskDto.getDescription(),
-                String.format("%s %s", taskDto.getExecutor().getFirstName(), taskDto.getExecutor().getLastName()),
-                taskDto.getOrderId(),
-                taskDto.getExecutedAt()
-        };
+        Object[] task = createRowObject(taskDto);
         super.addRow(task);
+    }
+
+    public void insertRow(TaskDto taskDto) {
+        tasks.add(taskDto);
+        tasks = tasks
+                .parallelStream()
+                .sorted(Comparator.comparingInt(TaskDto::getOrderId))
+                .collect(Collectors.toList());
+        int insertedIndex = tasks.indexOf(taskDto);
+        Object[] task = createRowObject(taskDto);
+        EventQueue.invokeLater(() -> insertRow(insertedIndex, task));
     }
 
     @Override
     public void removeRow(int row) {
         tasks.remove(row);
         super.removeRow(row);
+    }
+
+    private Object[] createRowObject(TaskDto taskDto) {
+        return new Object[]{
+                taskDto.getName(),
+                taskDto.getDescription(),
+                String.format("%s %s", taskDto.getExecutor().getFirstName(), taskDto.getExecutor().getLastName()),
+                taskDto.getOrderId(),
+                taskDto.getExecutedAt()
+        };
     }
 }

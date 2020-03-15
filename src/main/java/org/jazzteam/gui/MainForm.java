@@ -7,7 +7,6 @@ import org.jazzteam.gui.event.MoveEvent;
 import org.jazzteam.gui.table.CreateModal;
 import org.jazzteam.gui.table.EditModal;
 import org.jazzteam.gui.table.TaskTable;
-import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.MessageSource;
 import org.springframework.context.event.EventListener;
@@ -57,9 +56,8 @@ public class MainForm extends JFrame {
     }
 
     @EventListener
-    public void sortAfterAdd(CreateEvent createEvent) {
-        final TaskTableModel taskTableModel = taskService.createAndRepopulateModel();
-        EventQueue.invokeLater(() -> taskTable.setModel(taskTableModel));
+    public void taskAdded(CreateEvent createEvent) {
+        taskService.addTask(createEvent.getSavedTaskDto());
     }
 
     @EventListener

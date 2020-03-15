@@ -1,8 +1,6 @@
 package org.jazzteam.gui.action;
 
 import org.jazzteam.gui.table.TaskTableModel;
-import org.jazzteam.mapper.TaskMapper;
-import org.jazzteam.repository.TaskRepository;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
 
