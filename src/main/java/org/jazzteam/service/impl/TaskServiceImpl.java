@@ -3,6 +3,7 @@ package org.jazzteam.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
 import org.jazzteam.gui.action.*;
+import org.jazzteam.gui.event.MoveEventType;
 import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.mapper.TaskMapper;
 import org.jazzteam.model.TaskEntity;
@@ -14,7 +15,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -102,24 +102,30 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void moveUpTask(int selectedRowIndex, TaskDto selectedTaskDto) {
-        int upRowIndex = selectedRowIndex - 1;
-        //int nextRowIndex = selectedRowIndex + 1;
-        final TaskDto prevTaskDto = getSelectedTask(upRowIndex);
-        //final TaskDto nextTaskDto = taskTableModel.getTasks().get(nextRowIndex);
-        swapTasks(selectedRowIndex, upRowIndex, prevTaskDto, selectedTaskDto);
+    public void moveTask(int selectedRowIndex, int rowIndex, TaskDto selectedTaskDto, MoveEventType moveEventType) {
+        final TaskDto prevTaskDto = getSelectedTask(rowIndex);
+        swapTasks(prevTaskDto, selectedTaskDto);
         executorService.execute(() -> {
             TaskEntity prevTaskEntity = taskMapper.toEntity(prevTaskDto);
             TaskEntity selectedTaskEntity = taskMapper.toEntity(selectedTaskDto);
             taskRepository.updateOrders(prevTaskEntity, selectedTaskEntity);
-            TaskAction taskAction
-                    = new MoveAction(selectedRowIndex, selectedTaskEntity.getOrderId(), prevTaskEntity.getOrderId());
+            TaskAction taskAction = new MoveAction(
+                    selectedRowIndex,
+                    rowIndex,
+                    selectedTaskEntity.getOrderId(),
+                    prevTaskEntity.getOrderId(),
+                    moveEventType
+            );
             produceMessage(taskAction);
         });
     }
 
-    private void swapTasks(int selectedRowIndex, int upRowIndex, TaskDto prevTaskDto, TaskDto selectedTaskDto) {
-        Collections.swap(taskTableModel.getTasks(), upRowIndex, selectedRowIndex);
+    @Override
+    public int getTaskCount() {
+        return taskTableModel.getTasks().size() - 1;
+    }
+
+    private void swapTasks(TaskDto prevTaskDto, TaskDto selectedTaskDto) {
         int swapOrderId = prevTaskDto.getOrderId();
         prevTaskDto.setOrderId(selectedTaskDto.getOrderId());
         selectedTaskDto.setOrderId(swapOrderId);

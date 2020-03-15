@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
 import org.jazzteam.gui.event.CreateEvent;
 import org.jazzteam.gui.event.MoveEvent;
+import org.jazzteam.gui.event.MoveEventType;
 import org.jazzteam.gui.table.CreateModal;
 import org.jazzteam.gui.table.EditModal;
 import org.jazzteam.gui.table.TaskTable;
@@ -65,8 +66,12 @@ public class MainForm extends JFrame {
         int selectedRow = moveEvent.getSelectedRow();
         EventQueue.invokeLater(() -> {
             int currentSelectedRow = taskTable.getSelectedRow();
-            if (selectedRow + 1 == currentSelectedRow) {
-                taskTable.setRowSelectionInterval(selectedRow, selectedRow);
+            if (currentSelectedRow == selectedRow) {
+                if (MoveEventType.UP.equals(moveEvent.getMoveEventType())) {
+                    taskTable.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+                } else if (MoveEventType.DOWN.equals(moveEvent.getMoveEventType())) {
+                    taskTable.setRowSelectionInterval(selectedRow + 1, selectedRow + 1);
+                }
             }
         });
     }
@@ -82,6 +87,7 @@ public class MainForm extends JFrame {
         setEditButtonListener();
         setDeleteButtonListener();
         setUpButtonListener();
+        setDownButtonListener();
 
         headButtonsPanel.add(createButton);
         headButtonsPanel.add(editButton);
@@ -118,7 +124,17 @@ public class MainForm extends JFrame {
             int selectedRow = taskTable.getSelectedRow();
             if (!isFirstRow(selectedRow)) {
                 TaskDto selectedTaskDto = taskService.getSelectedTask(selectedRow);
-                taskService.moveUpTask(selectedRow, selectedTaskDto);
+                taskService.moveTask(selectedRow, selectedRow - 1, selectedTaskDto, MoveEventType.UP);
+            }
+        });
+    }
+
+    private void setDownButtonListener() {
+        downButton.addActionListener(event -> {
+            int selectedRow = taskTable.getSelectedRow();
+            if (!isLastRow(selectedRow)) {
+                TaskDto selectedTaskDto = taskService.getSelectedTask(selectedRow);
+                taskService.moveTask(selectedRow, selectedRow + 1, selectedTaskDto, MoveEventType.DOWN);
             }
         });
     }
@@ -134,5 +150,9 @@ public class MainForm extends JFrame {
 
     private boolean isFirstRow(int selectedRow) {
         return selectedRow < 1;
+    }
+
+    private boolean isLastRow(int selectedRow) {
+        return selectedRow == taskService.getTaskCount();
     }
 }

@@ -8,9 +8,12 @@ public class MoveEvent extends ApplicationEvent {
 
     @Getter
     private int selectedRow;
+    @Getter
+    private MoveEventType moveEventType;
 
-    public MoveEvent(Object source, int selectedRow) {
+    public MoveEvent(Object source, int selectedRow, MoveEventType moveEventType) {
         super(source);
         this.selectedRow = selectedRow;
+        this.moveEventType = moveEventType;
     }
 }

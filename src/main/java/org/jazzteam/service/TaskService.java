@@ -1,6 +1,7 @@
 package org.jazzteam.service;
 
 import org.jazzteam.dto.TaskDto;
+import org.jazzteam.gui.event.MoveEventType;
 import org.jazzteam.gui.table.TaskTableModel;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public interface TaskService {
 
     void addTask(TaskDto savedTaskDto);
 
-    void moveUpTask(int selectedRowIndex, TaskDto selectedTaskDto);
+    void moveTask(int selectedRowIndex, int rowIndex, TaskDto selectedTaskDto, MoveEventType moveEventType);
 
+    int getTaskCount();
 }
