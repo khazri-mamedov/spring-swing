@@ -31,6 +31,7 @@ public class EditModal extends JDialog {
     private JTextField nameField;
     private JTextField executorField;
     private JTextField descriptionField;
+    //private JTextField orderField;
 
     @PostConstruct
     private void initUi() {
@@ -45,10 +46,12 @@ public class EditModal extends JDialog {
         nameField = new JTextField(30);
         descriptionField = new JTextField(30);
         executorField = new JTextField(30);
+        //orderField = new JTextField(30);
 
         editFormPanel.add(nameField);
         editFormPanel.add(descriptionField);
         editFormPanel.add(executorField);
+        //editFormPanel.add(orderField);
         editFormPanel.add(editButton);
         setEditButtonListener();
         add(editFormPanel);
@@ -102,7 +105,8 @@ public class EditModal extends JDialog {
     private void editTask() {
         selectedTaskDto.setName(nameField.getText());
         selectedTaskDto.setDescription(descriptionField.getText());
-        selectedTaskDto.getExecutor().setId(Integer.parseInt(executorField.getText()));
+        selectedTaskDto.getExecutor().setId(Integer.parseInt(executorField.getText().trim()));
+        //selectedTaskDto.setOrderId(Integer.parseInt(orderField.getText().trim()));
         taskService.updateTask(selectedTaskDto, selectedRow);
         dispose();
     }
@@ -111,5 +115,6 @@ public class EditModal extends JDialog {
         nameField.setText(taskDto.getName());
         descriptionField.setText(taskDto.getDescription());
         executorField.setText(taskDto.getExecutor().getId().toString());
+        //orderField.setText(taskDto.getOrderId().toString());
     }
 }

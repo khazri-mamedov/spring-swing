@@ -2,11 +2,14 @@ package org.jazzteam.gui;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
+import org.jazzteam.gui.event.CreateEvent;
 import org.jazzteam.gui.table.CreateModal;
 import org.jazzteam.gui.table.EditModal;
 import org.jazzteam.gui.table.TaskTable;
+import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.MessageSource;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +55,12 @@ public class MainForm extends JFrame {
         add(mainTablePanel);
     }
 
+    @EventListener
+    public void sortAfterAdd(CreateEvent createEvent) {
+        final TaskTableModel taskTableModel = taskService.createAndRepopulateModel();
+        EventQueue.invokeLater(() -> taskTable.setModel(taskTableModel));
+    }
+
     private void populateHeadButtonsPanel() {
         createButton = new JButton(messageSource.getMessage("create.button", null, locale));
         editButton = new JButton(messageSource.getMessage("edit.button", null, locale));
@@ -62,6 +71,7 @@ public class MainForm extends JFrame {
         setCreateButtonListener();
         setEditButtonListener();
         setDeleteButtonListener();
+        setUpButtonListener();
 
         headButtonsPanel.add(createButton);
         headButtonsPanel.add(editButton);
@@ -93,6 +103,15 @@ public class MainForm extends JFrame {
         });
     }
 
+    private void setUpButtonListener() {
+        upButton.addActionListener(event -> {
+            int selectedRow = taskTable.getSelectedRow();
+            if (!isFirstRow(selectedRow)) {
+                taskService.moveUpTask(selectedRow);
+            }
+        });
+    }
+
     private void populateMainTablePanel() {
         taskTable = new TaskTable(taskService.createAndPopulateTaskTableModel());
         mainTablePanel = new JScrollPane(taskTable);
@@ -100,5 +119,9 @@ public class MainForm extends JFrame {
 
     private boolean isRowSelected(int selectedRow) {
         return selectedRow >= 0;
+    }
+
+    private boolean isFirstRow(int selectedRow) {
+        return selectedRow < 1;
     }
 }

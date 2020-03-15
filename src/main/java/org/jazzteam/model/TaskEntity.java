@@ -32,6 +32,9 @@ public class TaskEntity {
     @JoinColumn(name = "executor_id", referencedColumnName = "id")
     private ExecutorEntity executor;
 
+    @Column(name = "order_id")
+    private Integer orderId;
+
     @Column(name = "executed_at")
     private LocalDate executedAt;
 }

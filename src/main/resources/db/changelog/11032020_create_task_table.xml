@@ -16,6 +16,9 @@
             <column name="executor_id" type="int">
                 <constraints nullable="false" foreignKeyName="fk_task_executor" references="executor(id)" />
             </column>
+            <column name="order_id" type="int">
+                <constraints nullable="false"/>
+            </column>
             <column name="executed_at" type="date">
                 <constraints nullable="false"/>
             </column>

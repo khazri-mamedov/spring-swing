@@ -10,6 +10,7 @@
             <column name="name" type="string"/>
             <column name="description" type="string"/>
             <column name="executor_id" type="numeric"/>
+            <column name="order_id" type="numeric"/>
             <column name="executed_at" type="date"/>
         </loadData>
     </changeSet>

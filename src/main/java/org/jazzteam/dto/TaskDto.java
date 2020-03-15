@@ -13,5 +13,6 @@ public class TaskDto implements Serializable {
     private String name;
     private String description;
     private ExecutorDto executor;
+    private Integer orderId;
     private LocalDate executedAt;
 }

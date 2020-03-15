@@ -1,6 +1,7 @@
 package org.jazzteam.gui.action;
 
 import lombok.RequiredArgsConstructor;
+import org.jazzteam.gui.event.CreateEvent;
 import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -16,6 +17,6 @@ public class CreateAction implements TaskAction {
             TaskTableModel taskTableModel,
             TaskService taskService,
             ApplicationEventPublisher applicationEventPublisher) {
-        taskTableModel.addRow(taskService.getById(savedTaskEntityId));
+        applicationEventPublisher.publishEvent(new CreateEvent(this));
     }
 }

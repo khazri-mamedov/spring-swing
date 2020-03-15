@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
+import java.awt.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -46,19 +46,15 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskTableModel createAndPopulateTaskTableModel() {
-        taskTableModel = new TaskTableModel(
-                new String[]{"Name", "Description", "Executor", "Executed At"},
-                0
-        );
-
+        taskTableModel = new TaskTableModel();
         List<TaskDto> tasks = getAllTasks();
-        tasks.forEach(taskTableModel::addRow);
+        tasks.forEach(taskDto -> EventQueue.invokeLater(() -> taskTableModel.addRow(taskDto)));
         return taskTableModel;
     }
 
     @Override
     public List<TaskDto> getAllTasks() {
-        return taskRepository.findAll()
+        return taskRepository.findAllByOrderByOrderId()
                 .stream().map(taskMapper::toDto).collect(Collectors.toList());
     }
 
@@ -102,9 +98,16 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto getById(int id) {
-        TaskEntity taskEntity = taskRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        return taskMapper.toDto(taskEntity);
+    public TaskTableModel createAndRepopulateModel() {
+        // Mark eligible for GC
+        taskTableModel.getTasks().clear();
+        return createAndPopulateTaskTableModel();
+    }
+
+    @Override
+    public void moveUpTask(int rowIndex) {
+//        int upRowIndex = rowIndex - 1;
+//        Collections.swap(taskTableModel.getTasks(), rowIndex, upRowIndex);
     }
 
     private void produceMessage(TaskAction taskAction) {

@@ -14,8 +14,9 @@ public class TaskTableModel extends DefaultTableModel {
     @Getter
     private List<TaskDto> tasks = new LinkedList<>();
 
-    public TaskTableModel(String[] columns, int rowCount) {
-        super(columns, rowCount);
+    public TaskTableModel() {
+        super(new String[]{"Name", "Description", "Executor", "Order", "Executed At"},
+                0);
     }
 
     /**
@@ -29,6 +30,7 @@ public class TaskTableModel extends DefaultTableModel {
                 taskDto.getName(),
                 taskDto.getDescription(),
                 String.format("%s %s", taskDto.getExecutor().getFirstName(), taskDto.getExecutor().getLastName()),
+                taskDto.getOrderId(),
                 taskDto.getExecutedAt()
         };
         super.addRow(task);

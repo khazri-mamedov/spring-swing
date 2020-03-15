@@ -27,6 +27,7 @@ public class CreateModal extends JDialog {
     private JTextField nameField;
     private JTextField executorField;
     private JTextField descriptionField;
+    private JTextField orderField;
 
     @PostConstruct
     private void initUi() {
@@ -48,6 +49,7 @@ public class CreateModal extends JDialog {
         nameField.setText("");
         descriptionField.setText("");
         executorField.setText("");
+        orderField.setText("");
         setVisible(true);
     }
 
@@ -56,12 +58,14 @@ public class CreateModal extends JDialog {
         nameField = new JTextField(30);
         descriptionField = new JTextField(30);
         executorField = new JTextField(30);
+        orderField = new JTextField(30);
 
         setCreateButtonListener();
 
         createFormPanel.add(nameField);
         createFormPanel.add(descriptionField);
         createFormPanel.add(executorField);
+        createFormPanel.add(orderField);
         createFormPanel.add(createButton);
     }
 
@@ -74,8 +78,9 @@ public class CreateModal extends JDialog {
         taskDto.setName(nameField.getText());
         taskDto.setDescription(descriptionField.getText());
         ExecutorDto executorDto = new ExecutorDto();
-        executorDto.setId(Integer.parseInt(executorField.getText()));
+        executorDto.setId(Integer.parseInt(executorField.getText().trim()));
         taskDto.setExecutor(executorDto);
+        taskDto.setOrderId(Integer.parseInt(orderField.getText().trim()));
         taskDto.setExecutedAt(LocalDate.now());
         taskService.createTask(taskDto);
         dispose();
