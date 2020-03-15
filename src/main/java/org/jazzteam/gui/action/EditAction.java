@@ -27,12 +27,14 @@ public class EditAction implements TaskAction {
         EditEvent editEvent = new EditEvent(this, updatedTaskDto);
         applicationEventPublisher.publishEvent(editEvent);
         EventQueue.invokeLater(() -> {
-            taskTableModel.setValueAt(updatedTaskDto.getName(), selectedRow, 0);
-            taskTableModel.setValueAt(updatedTaskDto.getDescription(), selectedRow, 1);
+            taskTableModel.setValueAt(
+                    updatedTaskDto.getName(), selectedRow, TaskTableModel.Column.NAME.ordinal());
+            taskTableModel.setValueAt(
+                    updatedTaskDto.getDescription(), selectedRow, TaskTableModel.Column.DESCRIPTION.ordinal());
             taskTableModel.setValueAt(
                     String.format("%s %s", executorDto.getFirstName(), executorDto.getLastName()),
                     selectedRow,
-                    2
+                    TaskTableModel.Column.EXECUTOR.ordinal()
             );
             //taskTableModel.setValueAt(updatedTaskDto.getOrderId(), selectedRow, 3);
         });

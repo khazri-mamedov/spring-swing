@@ -25,8 +25,8 @@ public class MoveAction implements TaskAction {
         applicationEventPublisher.publishEvent(new MoveEvent(this, prevRow));
         EventQueue.invokeLater(() -> {
             taskTableModel.moveRow(selectedRow, selectedRow, prevRow);
-            taskTableModel.setValueAt(selectedOrderId, prevRow, 3);
-            taskTableModel.setValueAt(prevOrderId, selectedRow, 3);
+            taskTableModel.setValueAt(selectedOrderId, prevRow, TaskTableModel.Column.ORDER.ordinal());
+            taskTableModel.setValueAt(prevOrderId, selectedRow, TaskTableModel.Column.ORDER.ordinal());
         });
     }
 }

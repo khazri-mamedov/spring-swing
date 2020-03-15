@@ -19,6 +19,10 @@ public class TaskTableModel extends DefaultTableModel {
                 0);
     }
 
+    public enum Column {
+        NAME, DESCRIPTION, EXECUTOR, ORDER, EXECUTED_AT;
+    }
+
     /**
      * Add row backed by container
      *
