@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
 import org.jazzteam.gui.event.DeleteEvent;
 import org.jazzteam.gui.event.EditEvent;
+import org.jazzteam.gui.event.MoveEvent;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.MessageSource;
 import org.springframework.context.event.EventListener;
@@ -75,6 +76,14 @@ public class EditModal extends JDialog {
             final String edited = messageSource.getMessage("edited.before", null, defaultLocale);
             JOptionPane.showMessageDialog(null, edited);
             setFields(editedTaskDto);
+        }
+    }
+
+    @EventListener
+    public void tableStructureChanged(MoveEvent moveEvent) {
+        if(Objects.nonNull(selectedTaskDto)) {
+            JOptionPane.showMessageDialog(null, "table structure changed!");
+            dispose();
         }
     }
 
