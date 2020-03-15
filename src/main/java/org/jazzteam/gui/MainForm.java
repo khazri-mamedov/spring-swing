@@ -122,7 +122,7 @@ public class MainForm extends JFrame {
     private void setUpButtonListener() {
         upButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
-            if (!isFirstRow(selectedRow)) {
+            if (isRowSelected(selectedRow) && !isFirstRow(selectedRow)) {
                 TaskDto selectedTaskDto = taskService.getSelectedTask(selectedRow);
                 taskService.moveTask(selectedRow, selectedRow - 1, selectedTaskDto, MoveEventType.UP);
             }
@@ -132,7 +132,7 @@ public class MainForm extends JFrame {
     private void setDownButtonListener() {
         downButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
-            if (!isLastRow(selectedRow)) {
+            if (isRowSelected(selectedRow) && !isLastRow(selectedRow)) {
                 TaskDto selectedTaskDto = taskService.getSelectedTask(selectedRow);
                 taskService.moveTask(selectedRow, selectedRow + 1, selectedTaskDto, MoveEventType.DOWN);
             }

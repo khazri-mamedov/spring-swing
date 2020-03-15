@@ -82,7 +82,9 @@ public class EditModal extends JDialog {
     @EventListener
     public void tableStructureChanged(MoveEvent moveEvent) {
         if(Objects.nonNull(selectedTaskDto)) {
-            JOptionPane.showMessageDialog(null, "table structure changed!");
+            final String structureChanged
+                    = messageSource.getMessage("move.structure.changed", null, defaultLocale);
+            JOptionPane.showMessageDialog(null, structureChanged);
             dispose();
         }
     }
