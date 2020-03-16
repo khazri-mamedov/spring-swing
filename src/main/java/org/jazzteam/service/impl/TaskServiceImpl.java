@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.awt.EventQueue;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -136,7 +137,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public LinkedList<TaskDto> getSelectedTasks(Set<Integer> selectedRows) {
-        return selectedRows.stream().map(this::getSelectedTask).collect(Collectors.toCollection(LinkedList::new));
+        return selectedRows
+                .stream()
+                .map(this::getSelectedTask)
+                .sorted(Comparator.comparingInt(TaskDto::getOrderId))
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override
