@@ -12,8 +12,12 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.FlowLayout;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -81,7 +85,7 @@ public class EditModal extends JDialog {
 
     @EventListener
     public void tableStructureChanged(MoveEvent moveEvent) {
-        if(Objects.nonNull(selectedTaskDto)) {
+        if (Objects.nonNull(selectedTaskDto)) {
             final String structureChanged
                     = messageSource.getMessage("move.structure.changed", null, defaultLocale);
             JOptionPane.showMessageDialog(null, structureChanged);

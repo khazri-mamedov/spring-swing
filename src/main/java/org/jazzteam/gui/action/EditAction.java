@@ -8,7 +8,7 @@ import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.awt.*;
+import java.awt.EventQueue;
 
 @RequiredArgsConstructor
 public class EditAction implements TaskAction {

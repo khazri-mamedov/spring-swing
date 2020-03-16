@@ -15,8 +15,14 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.WindowConstants;
+import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.util.Locale;
 
 @Component

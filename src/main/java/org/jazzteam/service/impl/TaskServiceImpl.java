@@ -2,7 +2,11 @@ package org.jazzteam.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.action.*;
+import org.jazzteam.gui.action.CreateAction;
+import org.jazzteam.gui.action.DeleteAction;
+import org.jazzteam.gui.action.EditAction;
+import org.jazzteam.gui.action.MoveAction;
+import org.jazzteam.gui.action.TaskAction;
 import org.jazzteam.gui.event.MoveEventType;
 import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.mapper.TaskMapper;
@@ -14,7 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
+import java.awt.EventQueue;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;

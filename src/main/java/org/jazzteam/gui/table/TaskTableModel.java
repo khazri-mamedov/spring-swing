@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.jazzteam.dto.TaskDto;
 
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.EventQueue;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
