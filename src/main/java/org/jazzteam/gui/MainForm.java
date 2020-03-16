@@ -42,6 +42,7 @@ public class MainForm extends JFrame {
     private JButton editButton;
     private JButton upButton;
     private JButton downButton;
+    private JButton swapButton;
 
     private Locale locale = LocaleContextHolder.getLocale();
 
@@ -88,18 +89,21 @@ public class MainForm extends JFrame {
         deleteButton = new JButton(messageSource.getMessage("delete.button", null, locale));
         upButton = new JButton(messageSource.getMessage("up.button", null, locale));
         downButton = new JButton(messageSource.getMessage("down.button", null, locale));
+        swapButton = new JButton(messageSource.getMessage("swap.button", null, locale));
 
         setCreateButtonListener();
         setEditButtonListener();
         setDeleteButtonListener();
         setUpButtonListener();
         setDownButtonListener();
+        setSwapButtonListener();
 
         headButtonsPanel.add(createButton);
         headButtonsPanel.add(editButton);
         headButtonsPanel.add(deleteButton);
         headButtonsPanel.add(upButton);
         headButtonsPanel.add(downButton);
+        headButtonsPanel.add(swapButton);
     }
 
     private void setCreateButtonListener() {
@@ -129,8 +133,7 @@ public class MainForm extends JFrame {
         upButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (isRowSelected(selectedRow) && !isFirstRow(selectedRow)) {
-                TaskDto selectedTaskDto = taskService.getSelectedTask(selectedRow);
-                taskService.moveTask(selectedRow, selectedRow - 1, selectedTaskDto, MoveEventType.UP);
+                taskService.moveTask(selectedRow, selectedRow - 1, MoveEventType.UP);
             }
         });
     }
@@ -139,8 +142,16 @@ public class MainForm extends JFrame {
         downButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (isRowSelected(selectedRow) && !isLastRow(selectedRow)) {
-                TaskDto selectedTaskDto = taskService.getSelectedTask(selectedRow);
-                taskService.moveTask(selectedRow, selectedRow + 1, selectedTaskDto, MoveEventType.DOWN);
+                taskService.moveTask(selectedRow, selectedRow + 1, MoveEventType.DOWN);
+            }
+        });
+    }
+
+    private void setSwapButtonListener() {
+        swapButton.addActionListener(event -> {
+            int[] selectedRows = taskTable.getSelectedRows();
+            if (selectedRows.length == 2) {
+                taskService.swapTasks(selectedRows[0], selectedRows[1]);
             }
         });
     }

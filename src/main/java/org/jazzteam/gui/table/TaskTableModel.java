@@ -1,6 +1,7 @@
 package org.jazzteam.gui.table;
 
 import lombok.Getter;
+import org.jazzteam.dto.ExecutorDto;
 import org.jazzteam.dto.TaskDto;
 
 import javax.swing.table.DefaultTableModel;
@@ -46,6 +47,17 @@ public class TaskTableModel extends DefaultTableModel {
         int insertedIndex = tasks.indexOf(taskDto);
         Object[] task = createRowObject(taskDto);
         EventQueue.invokeLater(() -> insertRow(insertedIndex, task));
+    }
+
+    public void setValueAt(TaskDto taskDto, int rowIndex) {
+        ExecutorDto executorDto = taskDto.getExecutor();
+        String executorName = String.format("%s %s", executorDto.getFirstName(), executorDto.getLastName());
+
+        setValueAt(taskDto.getName(), rowIndex, Column.NAME.ordinal());
+        setValueAt(taskDto.getDescription(), rowIndex, Column.DESCRIPTION.ordinal());
+        setValueAt(executorName, rowIndex, Column.EXECUTOR.ordinal());
+        setValueAt(taskDto.getOrderId(), rowIndex, Column.ORDER.ordinal());
+        setValueAt(taskDto.getExecutedAt(), rowIndex, Column.EXECUTED_AT.ordinal());
     }
 
     @Override
