@@ -14,10 +14,10 @@ import java.util.Collections;
 public class MoveAction implements TaskAction {
     private static final long serialVersionUID = -3360460916617543808L;
 
-    private final int selectedRow;
-    private final int rowIndex;
-    private final int selectedOrderId;
-    private final int prevOrderId;
+    private final int firstSelectedRow;
+    private final int secondSelectedRow;
+    private final int firstSelectedOrderId;
+    private final int secondSelectedOrderId;
     private final MoveEventType moveEventType;
 
     @Override
@@ -25,12 +25,12 @@ public class MoveAction implements TaskAction {
             TaskTableModel taskTableModel,
             TaskService taskService,
             ApplicationEventPublisher applicationEventPublisher) {
-        Collections.swap(taskTableModel.getTasks(), rowIndex, selectedRow);
-        applicationEventPublisher.publishEvent(new MoveEvent(this, selectedRow, moveEventType));
+        Collections.swap(taskTableModel.getTasks(), secondSelectedRow, firstSelectedRow);
         EventQueue.invokeLater(() -> {
-            taskTableModel.moveRow(selectedRow, selectedRow, rowIndex);
-            taskTableModel.setValueAt(selectedOrderId, rowIndex, TaskTableModel.Column.ORDER.ordinal());
-            taskTableModel.setValueAt(prevOrderId, selectedRow, TaskTableModel.Column.ORDER.ordinal());
+            taskTableModel.moveRow(firstSelectedRow, firstSelectedRow, secondSelectedRow);
+            taskTableModel.setValueAt(firstSelectedOrderId, secondSelectedRow, TaskTableModel.Column.ORDER.ordinal());
+            taskTableModel.setValueAt(secondSelectedOrderId, firstSelectedRow, TaskTableModel.Column.ORDER.ordinal());
         });
+        applicationEventPublisher.publishEvent(new MoveEvent(this, firstSelectedRow, moveEventType));
     }
 }

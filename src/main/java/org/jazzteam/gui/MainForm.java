@@ -103,6 +103,7 @@ public class MainForm extends JFrame {
         headButtonsPanel.add(deleteButton);
         headButtonsPanel.add(upButton);
         headButtonsPanel.add(downButton);
+        headButtonsPanel.add(swapButton);
     }
 
     private void setCreateButtonListener() {
@@ -149,8 +150,8 @@ public class MainForm extends JFrame {
     private void setSwapButtonListener() {
         swapButton.addActionListener(event -> {
             int[] selectedRows = taskTable.getSelectedRows();
-            if (selectedRows.length > 1) {
-                
+            if (selectedRows.length == 2) {
+                taskService.swapTasks(selectedRows[0], selectedRows[1]);
             }
         });
     }
