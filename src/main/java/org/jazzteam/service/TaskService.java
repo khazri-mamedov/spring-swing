@@ -5,6 +5,7 @@ import org.jazzteam.gui.event.MoveEventType;
 import org.jazzteam.gui.table.TaskTableModel;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TaskService {
     TaskTableModel createAndPopulateTaskTableModel();
@@ -23,7 +24,11 @@ public interface TaskService {
 
     void addTask(TaskDto savedTaskDto);
 
-    void moveTask(int selectedRowIndex, int rowIndex, TaskDto selectedTaskDto, MoveEventType moveEventType);
+    void moveTask(int selectedRowIndex, int rowIndex, MoveEventType moveEventType);
 
     int getTaskCount();
+
+    List<TaskDto> getSelectedTasks(Set<Integer> rowIndices);
+
+    void swapTasks(int firstSelectedRow, int secondSelectedRow);
 }

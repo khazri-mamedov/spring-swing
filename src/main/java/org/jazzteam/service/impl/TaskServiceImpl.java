@@ -13,6 +13,7 @@ import org.jazzteam.mapper.TaskMapper;
 import org.jazzteam.model.TaskEntity;
 import org.jazzteam.repository.TaskRepository;
 import org.jazzteam.service.TaskService;
+import org.mapstruct.ap.internal.util.Collections;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.awt.EventQueue;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -106,10 +108,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void moveTask(int selectedRowIndex, int rowIndex, TaskDto selectedTaskDto, MoveEventType moveEventType) {
-        final TaskDto prevTaskDto = getSelectedTask(rowIndex);
-        swapTasks(prevTaskDto, selectedTaskDto);
+    public void moveTask(int selectedRowIndex, int rowIndex, MoveEventType moveEventType) {
         executorService.execute(() -> {
+            final TaskDto selectedTaskDto = getSelectedTask(selectedRowIndex);
+            final TaskDto prevTaskDto = getSelectedTask(rowIndex);
+            swapTasks(prevTaskDto, selectedTaskDto);
             TaskEntity prevTaskEntity = taskMapper.toEntity(prevTaskDto);
             TaskEntity selectedTaskEntity = taskMapper.toEntity(selectedTaskDto);
             taskRepository.updateOrders(prevTaskEntity, selectedTaskEntity);
@@ -127,6 +130,17 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public int getTaskCount() {
         return taskTableModel.getTasks().size() - 1;
+    }
+
+    @Override
+    public List<TaskDto> getSelectedTasks(Set<Integer> rowIndices) {
+        return taskRepository.findAllById(rowIndices).stream().map(taskMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public void swapTasks(int firstSelectedRow, int secondSelectedRow) {
+        final List<TaskDto> selectedTaskDtos = getSelectedTasks(Collections.asSet(firstSelectedRow, secondSelectedRow));
+
     }
 
     private void swapTasks(TaskDto prevTaskDto, TaskDto selectedTaskDto) {
