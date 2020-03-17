@@ -11,9 +11,12 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.time.LocalDate;
 import java.util.Locale;
 
@@ -30,7 +33,7 @@ public class CreateModal extends JDialog {
     private Locale locale = LocaleContextHolder.getLocale();
 
     private JTextField nameField;
-    private JTextField executorField;
+    private JTextField performerField;
     private JTextField descriptionField;
     private JTextField orderField;
 
@@ -41,11 +44,12 @@ public class CreateModal extends JDialog {
         setSize(500, 500);
 
         createFormPanel = new JPanel();
-        createFormPanel.setLayout(new FlowLayout());
+        createFormPanel.setLayout(new GridLayout(5,2));
 
         populateCreateFormPanel();
 
         add(createFormPanel);
+        pack();
         setModal(true);
     }
 
@@ -53,7 +57,7 @@ public class CreateModal extends JDialog {
         // JTextField is singleton (performance)
         nameField.setText("");
         descriptionField.setText("");
-        executorField.setText("");
+        performerField.setText("");
         orderField.setText("");
         setVisible(true);
     }
@@ -62,14 +66,18 @@ public class CreateModal extends JDialog {
         createButton = new JButton(messageSource.getMessage("create.button", null, locale));
         nameField = new JTextField(30);
         descriptionField = new JTextField(30);
-        executorField = new JTextField(30);
+        performerField = new JTextField(30);
         orderField = new JTextField(30);
 
         setCreateButtonListener();
 
+        createFormPanel.add(new JLabel(messageSource.getMessage("name.label", null, locale)));
         createFormPanel.add(nameField);
+        createFormPanel.add(new JLabel(messageSource.getMessage("description.label", null, locale)));
         createFormPanel.add(descriptionField);
-        createFormPanel.add(executorField);
+        createFormPanel.add(new JLabel(messageSource.getMessage("performer.label", null, locale)));
+        createFormPanel.add(performerField);
+        createFormPanel.add(new JLabel(messageSource.getMessage("order.label", null, locale)));
         createFormPanel.add(orderField);
         createFormPanel.add(createButton);
     }
@@ -83,7 +91,7 @@ public class CreateModal extends JDialog {
         taskDto.setName(nameField.getText());
         taskDto.setDescription(descriptionField.getText());
         PerformerDto performerDto = new PerformerDto();
-        performerDto.setId(Integer.parseInt(executorField.getText().trim()));
+        performerDto.setId(Integer.parseInt(performerField.getText().trim()));
         taskDto.setPerformer(performerDto);
         taskDto.setOrderId(Integer.parseInt(orderField.getText().trim()));
         taskDto.setExecutedAt(LocalDate.now());

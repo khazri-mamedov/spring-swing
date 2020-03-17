@@ -1,4 +1,4 @@
-package org.jazzteam.gui.table;
+package org.jazzteam.gui.table.task;
 
 import lombok.Getter;
 import org.jazzteam.dto.PerformerDto;
@@ -27,7 +27,7 @@ public class TaskTableModel extends DefaultTableModel {
     }
 
     public enum Column {
-        NAME, DESCRIPTION, PERFORMER, ORDER, EXECUTED_AT;
+        NAME, DESCRIPTION, PERFORMER, ORDER, EXECUTED_AT,
     }
 
     /**

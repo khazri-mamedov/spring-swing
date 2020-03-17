@@ -3,12 +3,8 @@ package org.jazzteam.gui.action.task;
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.gui.event.MoveEvent;
 import org.jazzteam.gui.event.MoveEventType;
-import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
-
-import java.awt.EventQueue;
-import java.util.Collections;
 
 @RequiredArgsConstructor
 public class MoveAction implements TaskAction {

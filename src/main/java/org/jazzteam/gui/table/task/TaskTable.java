@@ -1,4 +1,4 @@
-package org.jazzteam.gui.table;
+package org.jazzteam.gui.table.task;
 
 import lombok.Getter;
 

@@ -10,10 +10,12 @@ import org.jazzteam.gui.event.MoveEventType;
 import org.jazzteam.gui.event.SwapEvent;
 import org.jazzteam.gui.table.CreateModal;
 import org.jazzteam.gui.table.EditModal;
-import org.jazzteam.gui.table.TaskTable;
-import org.jazzteam.gui.table.TaskTableModel;
+import org.jazzteam.gui.table.task.TaskTable;
+import org.jazzteam.gui.table.task.TaskTableModel;
 import org.jazzteam.service.TaskService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -52,6 +54,11 @@ public class MainForm extends JFrame {
     private JButton upButton;
     private JButton downButton;
     private JButton swapButton;
+    private JButton performerButton;
+
+    @Autowired
+    @Lazy
+    private PerformerForm performerForm;
 
     private Locale locale = LocaleContextHolder.getLocale();
 
@@ -116,6 +123,7 @@ public class MainForm extends JFrame {
         upButton = new JButton(messageSource.getMessage("up.button", null, locale));
         downButton = new JButton(messageSource.getMessage("down.button", null, locale));
         swapButton = new JButton(messageSource.getMessage("swap.button", null, locale));
+        performerButton = new JButton(messageSource.getMessage("performer.button", null, locale));
 
         setCreateButtonListener();
         setEditButtonListener();
@@ -123,6 +131,7 @@ public class MainForm extends JFrame {
         setUpButtonListener();
         setDownButtonListener();
         setSwapButtonListener();
+        setPerformerButtonListener();
 
         headButtonsPanel.add(createButton);
         headButtonsPanel.add(editButton);
@@ -130,6 +139,7 @@ public class MainForm extends JFrame {
         headButtonsPanel.add(upButton);
         headButtonsPanel.add(downButton);
         headButtonsPanel.add(swapButton);
+        headButtonsPanel.add(performerButton);
     }
 
     private void setCreateButtonListener() {
@@ -188,6 +198,12 @@ public class MainForm extends JFrame {
                 final TaskDto secondSelectedTaskDto = taskTableModel.getTasks().get((secondRowIndex));
                 taskService.swapTasks(firstSelectedTaskDto, secondSelectedTaskDto);
             }
+        });
+    }
+
+    private void setPerformerButtonListener() {
+        performerButton.addActionListener(event -> {
+            performerForm.showDialog();
         });
     }
 
