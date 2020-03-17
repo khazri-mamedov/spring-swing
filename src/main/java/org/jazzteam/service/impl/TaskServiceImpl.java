@@ -9,22 +9,16 @@ import org.jazzteam.gui.action.MoveAction;
 import org.jazzteam.gui.action.SwapAction;
 import org.jazzteam.gui.action.TaskAction;
 import org.jazzteam.gui.event.MoveEventType;
-import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.mapper.TaskMapper;
 import org.jazzteam.model.TaskEntity;
 import org.jazzteam.repository.TaskRepository;
 import org.jazzteam.service.TaskService;
-import org.mapstruct.ap.internal.util.Collections;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.awt.EventQueue;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -40,23 +34,13 @@ public class TaskServiceImpl implements TaskService {
     private final AmqpTemplate amqpTemplate;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    private TaskTableModel taskTableModel;
-
     /**
      * Message listener registered @org.jazzteam.config.RabbitMqConfig
      *
      * @param taskAction execute logic
      */
     public void handleMessage(TaskAction taskAction) {
-        taskAction.execute(taskTableModel, this, applicationEventPublisher);
-    }
-
-    @Override
-    public TaskTableModel createAndPopulateTaskTableModel() {
-        taskTableModel = new TaskTableModel();
-        List<TaskDto> tasks = getAllTasks();
-        tasks.forEach(taskDto -> EventQueue.invokeLater(() -> taskTableModel.addRow(taskDto)));
-        return taskTableModel;
+        taskAction.execute(this, applicationEventPublisher);
     }
 
     @Override
@@ -66,11 +50,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void deleteSelectedTask(int rowIndex) {
+    public void deleteSelectedTask(TaskDto taskDto) {
         executorService.execute(() -> {
-            TaskDto selectedTaskDto = taskTableModel.getTasks().get(rowIndex);
-            deleteById(selectedTaskDto.getId());
-            TaskAction taskAction = new DeleteAction(rowIndex, selectedTaskDto.getId());
+            deleteById(taskDto.getId());
+            TaskAction taskAction = new DeleteAction(taskDto.getId());
             produceMessage(taskAction);
         });
     }
@@ -81,16 +64,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto getSelectedTask(int rowIndex) {
-        return taskTableModel.getTasks().get(rowIndex);
-    }
-
-    @Override
     public void updateTask(TaskDto taskDto, int rowIndex) {
         executorService.execute(() -> {
             TaskEntity updatedTaskEntity = taskRepository.save(taskMapper.toEntity(taskDto));
             TaskDto updatedTaskDto = taskMapper.toDto(updatedTaskEntity);
-            TaskAction taskAction = new EditAction(updatedTaskDto, rowIndex);
+            TaskAction taskAction = new EditAction(updatedTaskDto);
             produceMessage(taskAction);
         });
     }
@@ -106,24 +84,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void addTask(TaskDto savedTaskDto) {
-        taskTableModel.insertRow(savedTaskDto);
-    }
-
-    @Override
-    public void moveTask(int selectedRowIndex, int rowIndex, MoveEventType moveEventType) {
+    public void moveTask(TaskDto firstSelectedTaskDto, TaskDto secondSelectedTaskDto, MoveEventType moveEventType) {
         executorService.execute(() -> {
-            final TaskDto selectedTaskDto = getSelectedTask(selectedRowIndex);
-            final TaskDto prevTaskDto = getSelectedTask(rowIndex);
-            swapTasks(prevTaskDto, selectedTaskDto);
-            TaskEntity prevTaskEntity = taskMapper.toEntity(prevTaskDto);
-            TaskEntity selectedTaskEntity = taskMapper.toEntity(selectedTaskDto);
-            taskRepository.updateOrders(prevTaskEntity, selectedTaskEntity);
+            moveTasks(firstSelectedTaskDto, secondSelectedTaskDto);
             final TaskAction taskAction = new MoveAction(
-                    selectedRowIndex,
-                    rowIndex,
-                    selectedTaskEntity.getOrderId(),
-                    prevTaskEntity.getOrderId(),
+                    firstSelectedTaskDto.getId(),
+                    secondSelectedTaskDto.getId(),
                     moveEventType
             );
             produceMessage(taskAction);
@@ -131,45 +97,25 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public int getTaskCount() {
-        return taskTableModel.getTasks().size() - 1;
-    }
-
-    @Override
-    public LinkedList<TaskDto> getSelectedTasks(Set<Integer> selectedRows) {
-        return selectedRows
-                .stream()
-                .map(this::getSelectedTask)
-                .sorted(Comparator.comparingInt(TaskDto::getOrderId))
-                .collect(Collectors.toCollection(LinkedList::new));
-    }
-
-    @Override
-    public void swapTasks(int firstSelectedRow, int secondSelectedRow) {
+    public void swapTasks(TaskDto firstSelectedTaskDto, TaskDto secondSelectedTaskDto) {
         executorService.execute(() -> {
-            final LinkedList<TaskDto> selectedTaskDtos
-                    = getSelectedTasks(Collections.asSet(firstSelectedRow, secondSelectedRow));
-            if (selectedTaskDtos.size() > 1) {
-                TaskDto firstSelectedTask = selectedTaskDtos.getFirst();
-                TaskDto secondSelectedTask = selectedTaskDtos.getLast();
-                swapTasks(firstSelectedTask, secondSelectedTask);
-                taskRepository
-                        .updateOrders(taskMapper.toEntity(firstSelectedTask), taskMapper.toEntity(secondSelectedTask));
-                final TaskAction taskAction = new SwapAction(
-                        firstSelectedTask,
-                        secondSelectedTask,
-                        firstSelectedRow,
-                        secondSelectedRow
-                );
-                produceMessage(taskAction);
-            }
+            moveTasks(firstSelectedTaskDto, secondSelectedTaskDto);
+            final TaskAction taskAction = new SwapAction(
+                    firstSelectedTaskDto.getId(),
+                    secondSelectedTaskDto.getId()
+            );
+            produceMessage(taskAction);
         });
     }
 
-    private void swapTasks(TaskDto prevTaskDto, TaskDto selectedTaskDto) {
-        int swapOrderId = prevTaskDto.getOrderId();
-        prevTaskDto.setOrderId(selectedTaskDto.getOrderId());
-        selectedTaskDto.setOrderId(swapOrderId);
+    private void moveTasks(TaskDto firstSelectedTaskDto, TaskDto secondSelectedTaskDto) {
+        TaskEntity secondTaskEntity = taskMapper.toEntity(secondSelectedTaskDto);
+        TaskEntity firstTaskEntity = taskMapper.toEntity(firstSelectedTaskDto);
+
+        secondTaskEntity.setOrderId(firstSelectedTaskDto.getOrderId());
+        firstTaskEntity.setOrderId(secondSelectedTaskDto.getOrderId());
+
+        taskRepository.updateOrders(firstTaskEntity, secondTaskEntity);
     }
 
     private void produceMessage(TaskAction taskAction) {

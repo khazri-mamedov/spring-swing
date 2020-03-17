@@ -8,27 +8,17 @@ import java.util.List;
 import java.util.Set;
 
 public interface TaskService {
-    TaskTableModel createAndPopulateTaskTableModel();
-
     List<TaskDto> getAllTasks();
 
-    void deleteSelectedTask(int rowIndex);
+    void deleteSelectedTask(TaskDto taskDto);
 
     void deleteById(int id);
-
-    TaskDto getSelectedTask(int rowIndex);
 
     void updateTask(TaskDto taskDto, int rowIndex);
 
     void createTask(TaskDto taskDto);
 
-    void addTask(TaskDto savedTaskDto);
+    void moveTask(TaskDto firstSelectedTaskDto, TaskDto secondSelectedTaskDto, MoveEventType moveEventType);
 
-    void moveTask(int selectedRowIndex, int rowIndex, MoveEventType moveEventType);
-
-    int getTaskCount();
-
-    List<TaskDto> getSelectedTasks(Set<Integer> rowIndices);
-
-    void swapTasks(int firstSelectedRow, int secondSelectedRow);
+    void swapTasks(TaskDto firstSelectedTaskDto, TaskDto secondSelectedTaskDto);
 }

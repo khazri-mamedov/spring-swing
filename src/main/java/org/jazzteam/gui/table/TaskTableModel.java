@@ -3,9 +3,12 @@ package org.jazzteam.gui.table;
 import lombok.Getter;
 import org.jazzteam.dto.ExecutorDto;
 import org.jazzteam.dto.TaskDto;
+import org.jazzteam.gui.exception.TaskNotFoundException;
 
 import javax.swing.table.DefaultTableModel;
 import java.awt.EventQueue;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +52,13 @@ public class TaskTableModel extends DefaultTableModel {
         EventQueue.invokeLater(() -> insertRow(insertedIndex, task));
     }
 
+    public void insertRows(TaskDto... taskDtos) {
+        Arrays.stream(taskDtos).forEach(this::insertRow);
+    }
+
     public void setValueAt(TaskDto taskDto, int rowIndex) {
+        tasks.set(rowIndex, taskDto);
+
         ExecutorDto executorDto = taskDto.getExecutor();
         String executorName = String.format("%s %s", executorDto.getFirstName(), executorDto.getLastName());
 
@@ -61,9 +70,58 @@ public class TaskTableModel extends DefaultTableModel {
     }
 
     @Override
-    public void removeRow(int row) {
-        tasks.remove(row);
-        super.removeRow(row);
+    public void removeRow(int deletedTaskId) {
+        int rowIndex = getTaskRowIndex(deletedTaskId);
+        tasks.remove(rowIndex);
+        super.removeRow(rowIndex);
+    }
+
+    public void removeRows(int... deletedTaskIds) {
+        Arrays.stream(deletedTaskIds).forEach(this::removeRow);
+    }
+
+    public void moveTasks(int firsSelectedTaskId, int secondSelectedTaskId) {
+        LinkedList<TaskDto> taskDtos = getTasksById(firsSelectedTaskId, secondSelectedTaskId);
+        if (taskDtos.size() == 2) {
+            int firstSelectedRow = tasks.indexOf(taskDtos.getFirst());
+            int secondSelectedRow = tasks.indexOf(taskDtos.getLast());
+            swapOrderIds(taskDtos.getFirst(), taskDtos.getLast());
+            Collections.swap(tasks, firstSelectedRow, secondSelectedRow);
+            EventQueue.invokeLater(() -> {
+                moveRow(firstSelectedRow, firstSelectedRow, secondSelectedRow);
+                setValueAt(taskDtos.getFirst(), secondSelectedRow);
+                setValueAt(taskDtos.getLast(), firstSelectedRow);
+            });
+        }
+    }
+
+    public void swapTasks(int firsSelectedTaskId, int secondSelectedTaskId) {
+        // Normal code duplication. Multiple swap possibility and different logic
+        LinkedList<TaskDto> taskDtos = getTasksById(firsSelectedTaskId, secondSelectedTaskId);
+        if (taskDtos.size() == 2) {
+            int firstSelectedRow = tasks.indexOf(taskDtos.getFirst());
+            int secondSelectedRow = tasks.indexOf(taskDtos.getLast());
+            swapOrderIds(taskDtos.getFirst(), taskDtos.getLast());
+            Collections.swap(tasks, firstSelectedRow, secondSelectedRow);
+            EventQueue.invokeLater(() -> {
+                setValueAt(taskDtos.getFirst(), secondSelectedRow);
+                setValueAt(taskDtos.getLast(), firstSelectedRow);
+            });
+        }
+    }
+
+    private LinkedList<TaskDto> getTasksById(int firsSelectedTaskId, int secondSelectedTaskId) {
+        return tasks
+                .stream()
+                .filter(taskDto ->
+                        taskDto.getId().equals(firsSelectedTaskId) || taskDto.getId().equals(secondSelectedTaskId))
+                .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    private void swapOrderIds(TaskDto prevTaskDto, TaskDto selectedTaskDto) {
+        int swapOrderId = prevTaskDto.getOrderId();
+        prevTaskDto.setOrderId(selectedTaskDto.getOrderId());
+        selectedTaskDto.setOrderId(swapOrderId);
     }
 
     private Object[] createRowObject(TaskDto taskDto) {
@@ -74,5 +132,13 @@ public class TaskTableModel extends DefaultTableModel {
                 taskDto.getOrderId(),
                 taskDto.getExecutedAt()
         };
+    }
+
+    public int getTaskRowIndex(int taskId) {
+        TaskDto foundTaskDto = tasks
+                .stream()
+                .filter(taskDto -> taskDto.getId().equals(taskId))
+                .findFirst().orElseThrow(() -> new TaskNotFoundException(taskId));
+        return tasks.indexOf(foundTaskDto);
     }
 }

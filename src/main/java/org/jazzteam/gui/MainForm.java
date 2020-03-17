@@ -2,12 +2,17 @@ package org.jazzteam.gui;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
+import org.jazzteam.gui.action.SwapAction;
 import org.jazzteam.gui.event.CreateEvent;
+import org.jazzteam.gui.event.DeleteEvent;
+import org.jazzteam.gui.event.EditEvent;
 import org.jazzteam.gui.event.MoveEvent;
 import org.jazzteam.gui.event.MoveEventType;
+import org.jazzteam.gui.event.SwapEvent;
 import org.jazzteam.gui.table.CreateModal;
 import org.jazzteam.gui.table.EditModal;
 import org.jazzteam.gui.table.TaskTable;
+import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.MessageSource;
 import org.springframework.context.event.EventListener;
@@ -23,11 +28,15 @@ import javax.swing.WindowConstants;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.List;
 import java.util.Locale;
 
+// TODO create pair class one for GUI init. another for working with data (i.e GUI Designer)
 @Component
 @RequiredArgsConstructor
 public class MainForm extends JFrame {
+    private static final long serialVersionUID = -246288357976232130L;
+
     private final MessageSource messageSource;
     private final CreateModal createModal;
     private final EditModal editModal;
@@ -36,6 +45,7 @@ public class MainForm extends JFrame {
     private JPanel headButtonsPanel;
     private JScrollPane mainTablePanel;
     private TaskTable taskTable;
+    private TaskTableModel taskTableModel;
 
     private JButton createButton;
     private JButton deleteButton;
@@ -65,22 +75,39 @@ public class MainForm extends JFrame {
 
     @EventListener
     public void taskAdded(CreateEvent createEvent) {
-        taskService.addTask(createEvent.getSavedTaskDto());
+        taskTableModel.insertRows(createEvent.getSavedTaskDto());
+    }
+
+    @EventListener
+    public void taskEdited(EditEvent editEvent) {
+        final TaskDto editedTaskDto = editEvent.getEditedTaskDto();
+        int rowIndex = taskTableModel.getTaskRowIndex(editedTaskDto.getId());
+        EventQueue.invokeLater(() -> taskTableModel.setValueAt(editedTaskDto, rowIndex));
+    }
+
+    @EventListener
+    public void taskDeleted(DeleteEvent deleteEvent) {
+        int deletedTaskId = deleteEvent.getDeletedTaskId();
+        EventQueue.invokeLater(() -> taskTableModel.removeRows(deletedTaskId));
     }
 
     @EventListener
     public void selectedRowChanged(MoveEvent moveEvent) {
-        int selectedRow = moveEvent.getSelectedRow();
-        EventQueue.invokeLater(() -> {
-            int currentSelectedRow = taskTable.getSelectedRow();
-            if (currentSelectedRow == selectedRow) {
-                if (MoveEventType.UP.equals(moveEvent.getMoveEventType())) {
-                    taskTable.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
-                } else if (MoveEventType.DOWN.equals(moveEvent.getMoveEventType())) {
-                    taskTable.setRowSelectionInterval(selectedRow + 1, selectedRow + 1);
-                }
+        int selectedRow = taskTableModel.getTaskRowIndex(moveEvent.getFirstSelectedTaskId());
+        int currentSelectedRow = taskTable.getSelectedRow();
+        taskTableModel.moveTasks(moveEvent.getFirstSelectedTaskId(), moveEvent.getSecondSelectedTaskId());
+        if (currentSelectedRow == selectedRow) {
+            if (MoveEventType.UP.equals(moveEvent.getMoveEventType())) {
+                taskTable.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+            } else if (MoveEventType.DOWN.equals(moveEvent.getMoveEventType())) {
+                taskTable.setRowSelectionInterval(selectedRow + 1, selectedRow + 1);
             }
-        });
+        }
+    }
+
+    @EventListener
+    public void swappedTasks(SwapEvent swapEvent) {
+        taskTableModel.swapTasks(swapEvent.getFirsSelectedTaskId(), swapEvent.getSecondSelectedTaskId());
     }
 
     private void populateHeadButtonsPanel() {
@@ -114,7 +141,8 @@ public class MainForm extends JFrame {
         deleteButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (isRowSelected(selectedRow)) {
-                taskService.deleteSelectedTask(taskTable.getSelectedRow());
+                TaskDto selectedTaskDto = taskTableModel.getTasks().get(selectedRow);
+                taskService.deleteSelectedTask(selectedTaskDto);
             }
         });
     }
@@ -123,7 +151,7 @@ public class MainForm extends JFrame {
         editButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (isRowSelected(selectedRow)) {
-                TaskDto selectedTaskDto = taskService.getSelectedTask(selectedRow);
+                TaskDto selectedTaskDto = taskTableModel.getTasks().get(selectedRow);
                 editModal.showDialog(selectedTaskDto, selectedRow);
             }
         });
@@ -133,7 +161,9 @@ public class MainForm extends JFrame {
         upButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (isRowSelected(selectedRow) && !isFirstRow(selectedRow)) {
-                taskService.moveTask(selectedRow, selectedRow - 1, MoveEventType.UP);
+                final TaskDto firstSelectedTaskDto = taskTableModel.getTasks().get(selectedRow);
+                final TaskDto secondSelectedTaskDto = taskTableModel.getTasks().get((selectedRow - 1));
+                taskService.moveTask(firstSelectedTaskDto, secondSelectedTaskDto, MoveEventType.UP);
             }
         });
     }
@@ -142,7 +172,9 @@ public class MainForm extends JFrame {
         downButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (isRowSelected(selectedRow) && !isLastRow(selectedRow)) {
-                taskService.moveTask(selectedRow, selectedRow + 1, MoveEventType.DOWN);
+                final TaskDto firstSelectedTaskDto = taskTableModel.getTasks().get(selectedRow);
+                final TaskDto secondSelectedTaskDto = taskTableModel.getTasks().get((selectedRow + 1));
+                taskService.moveTask(firstSelectedTaskDto, secondSelectedTaskDto, MoveEventType.DOWN);
             }
         });
     }
@@ -151,13 +183,20 @@ public class MainForm extends JFrame {
         swapButton.addActionListener(event -> {
             int[] selectedRows = taskTable.getSelectedRows();
             if (selectedRows.length == 2) {
-                taskService.swapTasks(selectedRows[0], selectedRows[1]);
+                int firstRowIndex = selectedRows[0];
+                int secondRowIndex = selectedRows[1];
+                final TaskDto firstSelectedTaskDto = taskTableModel.getTasks().get(firstRowIndex);
+                final TaskDto secondSelectedTaskDto = taskTableModel.getTasks().get((secondRowIndex));
+                taskService.swapTasks(firstSelectedTaskDto, secondSelectedTaskDto);
             }
         });
     }
 
     private void populateMainTablePanel() {
-        taskTable = new TaskTable(taskService.createAndPopulateTaskTableModel());
+        taskTableModel = new TaskTableModel();
+        List<TaskDto> tasks = taskService.getAllTasks();
+        tasks.forEach(taskTableModel::addRow);
+        taskTable = new TaskTable(taskTableModel);
         mainTablePanel = new JScrollPane(taskTable);
     }
 
@@ -170,6 +209,6 @@ public class MainForm extends JFrame {
     }
 
     private boolean isLastRow(int selectedRow) {
-        return selectedRow == taskService.getTaskCount();
+        return selectedRow == taskTableModel.getTasks().size() - 1;
     }
 }

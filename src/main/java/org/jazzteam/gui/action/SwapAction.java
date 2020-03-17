@@ -2,6 +2,7 @@ package org.jazzteam.gui.action;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
+import org.jazzteam.gui.event.SwapEvent;
 import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -13,20 +14,13 @@ import java.util.Collections;
 public class SwapAction implements TaskAction {
     private static final long serialVersionUID = 7444961021937684170L;
 
-    private final TaskDto firstSelectedTask;
-    private final TaskDto secondSelectedTask;
-    private final int firstSelectedRow;
-    private final int secondSelectedRow;
+    private final int firstSelectedTaskId;
+    private final int secondSelectedTaskId;
 
     @Override
     public void execute(
-            TaskTableModel taskTableModel,
             TaskService taskService,
             ApplicationEventPublisher applicationEventPublisher) {
-        Collections.swap(taskTableModel.getTasks(), firstSelectedRow, secondSelectedRow);
-        EventQueue.invokeLater(() -> {
-            taskTableModel.setValueAt(firstSelectedTask, secondSelectedRow);
-            taskTableModel.setValueAt(secondSelectedTask, firstSelectedRow);
-        });
+        applicationEventPublisher.publishEvent(new SwapEvent(this, firstSelectedTaskId, secondSelectedTaskId));
     }
 }

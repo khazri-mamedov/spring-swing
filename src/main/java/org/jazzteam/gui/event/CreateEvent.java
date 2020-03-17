@@ -8,7 +8,7 @@ public class CreateEvent extends ApplicationEvent {
     private static final long serialVersionUID = 5369402902472618869L;
 
     @Getter
-    private TaskDto savedTaskDto;
+    private final TaskDto savedTaskDto;
 
     public CreateEvent(Object source, TaskDto savedTaskDto) {
         super(source);

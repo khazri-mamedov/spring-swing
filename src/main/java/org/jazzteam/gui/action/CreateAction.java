@@ -15,7 +15,6 @@ public class CreateAction implements TaskAction {
 
     @Override
     public void execute(
-            TaskTableModel taskTableModel,
             TaskService taskService,
             ApplicationEventPublisher applicationEventPublisher) {
         applicationEventPublisher.publishEvent(new CreateEvent(this, createdTaskDto));

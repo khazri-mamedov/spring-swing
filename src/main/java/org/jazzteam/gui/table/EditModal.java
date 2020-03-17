@@ -24,6 +24,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Component
 public class EditModal extends JDialog {
+    private static final long serialVersionUID = -4874705556978842092L;
 
     private final MessageSource messageSource;
     private final TaskService taskService;
@@ -121,7 +122,6 @@ public class EditModal extends JDialog {
         selectedTaskDto.setName(nameField.getText());
         selectedTaskDto.setDescription(descriptionField.getText());
         selectedTaskDto.getExecutor().setId(Integer.parseInt(executorField.getText().trim()));
-        //selectedTaskDto.setOrderId(Integer.parseInt(orderField.getText().trim()));
         taskService.updateTask(selectedTaskDto, selectedRow);
         dispose();
     }
@@ -130,6 +130,5 @@ public class EditModal extends JDialog {
         nameField.setText(taskDto.getName());
         descriptionField.setText(taskDto.getDescription());
         executorField.setText(taskDto.getExecutor().getId().toString());
-        //orderField.setText(taskDto.getOrderId().toString());
     }
 }

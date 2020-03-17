@@ -8,7 +8,7 @@ public class EditEvent extends ApplicationEvent {
     private static final long serialVersionUID = -6027831971235701327L;
 
     @Getter
-    private TaskDto editedTaskDto;
+    private final TaskDto editedTaskDto;
 
     public EditEvent(Object source, TaskDto editedTaskDto) {
         super(source);

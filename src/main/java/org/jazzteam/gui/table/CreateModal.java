@@ -20,6 +20,8 @@ import java.util.Locale;
 @RequiredArgsConstructor
 @Component
 public class CreateModal extends JDialog {
+    private static final long serialVersionUID = 8957483143302457227L;
+
     private final MessageSource messageSource;
     private final TaskService taskService;
 

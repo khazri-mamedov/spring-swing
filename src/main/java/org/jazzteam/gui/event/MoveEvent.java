@@ -7,13 +7,16 @@ public class MoveEvent extends ApplicationEvent {
     private static final long serialVersionUID = 6903983662787400834L;
 
     @Getter
-    private int selectedRow;
+    private final int firstSelectedTaskId;
     @Getter
-    private MoveEventType moveEventType;
+    private final int secondSelectedTaskId;
+    @Getter
+    private final MoveEventType moveEventType;
 
-    public MoveEvent(Object source, int selectedRow, MoveEventType moveEventType) {
+    public MoveEvent(Object source, int firstSelectedTaskId, int secondSelectedTaskId, MoveEventType moveEventType) {
         super(source);
-        this.selectedRow = selectedRow;
+        this.firstSelectedTaskId = firstSelectedTaskId;
+        this.secondSelectedTaskId = secondSelectedTaskId;
         this.moveEventType = moveEventType;
     }
 }
