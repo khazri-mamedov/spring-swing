@@ -107,7 +107,7 @@ public class MainForm extends JFrame {
 
     @EventListener
     public void swappedTasks(SwapEvent swapEvent) {
-        taskTableModel.swapTasks(swapEvent.getFirsSelectedTaskId(), swapEvent.getSecondSelectedTaskId());
+        taskTableModel.swapTasks(swapEvent.getFirstSelectedTaskId(), swapEvent.getSecondSelectedTaskId());
     }
 
     private void populateHeadButtonsPanel() {

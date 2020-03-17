@@ -64,7 +64,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void updateTask(TaskDto taskDto, int rowIndex) {
+    public void updateTask(TaskDto taskDto) {
         executorService.execute(() -> {
             TaskEntity updatedTaskEntity = taskRepository.save(taskMapper.toEntity(taskDto));
             TaskDto updatedTaskDto = taskMapper.toDto(updatedTaskEntity);

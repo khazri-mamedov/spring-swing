@@ -14,7 +14,7 @@ public interface TaskService {
 
     void deleteById(int id);
 
-    void updateTask(TaskDto taskDto, int rowIndex);
+    void updateTask(TaskDto taskDto);
 
     void createTask(TaskDto taskDto);
 

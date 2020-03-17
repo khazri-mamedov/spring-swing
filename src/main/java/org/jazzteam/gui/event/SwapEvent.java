@@ -7,13 +7,13 @@ public class SwapEvent extends ApplicationEvent {
     private static final long serialVersionUID = 7708964335013207608L;
 
     @Getter
-    private final int firsSelectedTaskId;
+    private final int firstSelectedTaskId;
     @Getter
     private final int secondSelectedTaskId;
 
-    public SwapEvent(Object source, int firsSelectedTaskId, int secondSelectedTaskId) {
+    public SwapEvent(Object source, int firstSelectedTaskId, int secondSelectedTaskId) {
         super(source);
-        this.firsSelectedTaskId = firsSelectedTaskId;
+        this.firstSelectedTaskId = firstSelectedTaskId;
         this.secondSelectedTaskId = secondSelectedTaskId;
     }
 }
