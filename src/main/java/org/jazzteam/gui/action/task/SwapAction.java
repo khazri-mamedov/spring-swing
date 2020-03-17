@@ -1,14 +1,9 @@
-package org.jazzteam.gui.action;
+package org.jazzteam.gui.action.task;
 
 import lombok.RequiredArgsConstructor;
-import org.jazzteam.dto.TaskDto;
 import org.jazzteam.gui.event.SwapEvent;
-import org.jazzteam.gui.table.TaskTableModel;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
-
-import java.awt.EventQueue;
-import java.util.Collections;
 
 @RequiredArgsConstructor
 public class SwapAction implements TaskAction {

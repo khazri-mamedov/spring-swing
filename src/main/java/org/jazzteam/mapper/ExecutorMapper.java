@@ -1,12 +1,12 @@
 package org.jazzteam.mapper;
 
-import org.jazzteam.dto.ExecutorDto;
-import org.jazzteam.model.ExecutorEntity;
+import org.jazzteam.dto.PerformerDto;
+import org.jazzteam.model.PerformerEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ExecutorMapper {
-    ExecutorDto toDto(ExecutorEntity executorEntity);
+    PerformerDto toDto(PerformerEntity performerEntity);
 
-    ExecutorEntity toEntity(ExecutorDto executorDto);
+    PerformerEntity toEntity(PerformerDto performerDto);
 }

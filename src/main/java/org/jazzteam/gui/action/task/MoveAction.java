@@ -1,4 +1,4 @@
-package org.jazzteam.gui.action;
+package org.jazzteam.gui.action.task;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.gui.event.MoveEvent;

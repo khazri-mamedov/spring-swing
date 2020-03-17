@@ -1,4 +1,4 @@
-package org.jazzteam.gui.action;
+package org.jazzteam.gui.action.task;
 
 import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;

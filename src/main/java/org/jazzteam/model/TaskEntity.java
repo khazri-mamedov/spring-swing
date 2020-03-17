@@ -29,8 +29,8 @@ public class TaskEntity {
     private String description;
 
     @OneToOne
-    @JoinColumn(name = "executor_id", referencedColumnName = "id")
-    private ExecutorEntity executor;
+    @JoinColumn(name = "performer_id", referencedColumnName = "id")
+    private PerformerEntity performer;
 
     @Column(name = "order_id")
     private Integer orderId;

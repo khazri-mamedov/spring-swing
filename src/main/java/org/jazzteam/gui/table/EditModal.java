@@ -121,7 +121,7 @@ public class EditModal extends JDialog {
     private void editTask() {
         selectedTaskDto.setName(nameField.getText());
         selectedTaskDto.setDescription(descriptionField.getText());
-        selectedTaskDto.getExecutor().setId(Integer.parseInt(executorField.getText().trim()));
+        selectedTaskDto.getPerformer().setId(Integer.parseInt(executorField.getText().trim()));
         taskService.updateTask(selectedTaskDto);
         dispose();
     }
@@ -129,6 +129,6 @@ public class EditModal extends JDialog {
     private void setFields(TaskDto taskDto) {
         nameField.setText(taskDto.getName());
         descriptionField.setText(taskDto.getDescription());
-        executorField.setText(taskDto.getExecutor().getId().toString());
+        executorField.setText(taskDto.getPerformer().getId().toString());
     }
 }

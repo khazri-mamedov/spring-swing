@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <changeSet author="Khazri_Mamedov" id="11032020_create_executor_table">
-        <createTable tableName="executor">
+        <createTable tableName="performer">
             <column name="id" type="int" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true" unique="true"/>
             </column>
@@ -19,7 +19,7 @@
         <addUniqueConstraint
                 columnNames="first_name, last_name"
                 constraintName="unique_full_name"
-                tableName="executor"
+                tableName="performer"
         />
     </changeSet>
 </databaseChangeLog>

@@ -1,7 +1,7 @@
 package org.jazzteam.gui.table;
 
 import lombok.RequiredArgsConstructor;
-import org.jazzteam.dto.ExecutorDto;
+import org.jazzteam.dto.PerformerDto;
 import org.jazzteam.dto.TaskDto;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.MessageSource;
@@ -82,9 +82,9 @@ public class CreateModal extends JDialog {
         TaskDto taskDto = new TaskDto();
         taskDto.setName(nameField.getText());
         taskDto.setDescription(descriptionField.getText());
-        ExecutorDto executorDto = new ExecutorDto();
-        executorDto.setId(Integer.parseInt(executorField.getText().trim()));
-        taskDto.setExecutor(executorDto);
+        PerformerDto performerDto = new PerformerDto();
+        performerDto.setId(Integer.parseInt(executorField.getText().trim()));
+        taskDto.setPerformer(performerDto);
         taskDto.setOrderId(Integer.parseInt(orderField.getText().trim()));
         taskDto.setExecutedAt(LocalDate.now());
         taskService.createTask(taskDto);

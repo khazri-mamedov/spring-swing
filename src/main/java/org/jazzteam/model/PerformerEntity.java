@@ -11,8 +11,8 @@ import javax.persistence.Table;
 
 @Data
 @Entity
-@Table(name = "executor")
-public class ExecutorEntity {
+@Table(name = "performer")
+public class PerformerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

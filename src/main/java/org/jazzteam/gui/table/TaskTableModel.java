@@ -1,7 +1,7 @@
 package org.jazzteam.gui.table;
 
 import lombok.Getter;
-import org.jazzteam.dto.ExecutorDto;
+import org.jazzteam.dto.PerformerDto;
 import org.jazzteam.dto.TaskDto;
 import org.jazzteam.gui.exception.TaskNotFoundException;
 
@@ -22,12 +22,12 @@ public class TaskTableModel extends DefaultTableModel {
     private List<TaskDto> tasks = new LinkedList<>();
 
     public TaskTableModel() {
-        super(new String[]{"Name", "Description", "Executor", "Order", "Executed At"},
+        super(new String[]{"Name", "Description", "Performer", "Order", "Executed At"},
                 0);
     }
 
     public enum Column {
-        NAME, DESCRIPTION, EXECUTOR, ORDER, EXECUTED_AT;
+        NAME, DESCRIPTION, PERFORMER, ORDER, EXECUTED_AT;
     }
 
     /**
@@ -59,12 +59,12 @@ public class TaskTableModel extends DefaultTableModel {
     public void setValueAt(TaskDto taskDto, int rowIndex) {
         tasks.set(rowIndex, taskDto);
 
-        ExecutorDto executorDto = taskDto.getExecutor();
-        String executorName = String.format("%s %s", executorDto.getFirstName(), executorDto.getLastName());
+        PerformerDto performerDto = taskDto.getPerformer();
+        String executorName = String.format("%s %s", performerDto.getFirstName(), performerDto.getLastName());
 
         setValueAt(taskDto.getName(), rowIndex, Column.NAME.ordinal());
         setValueAt(taskDto.getDescription(), rowIndex, Column.DESCRIPTION.ordinal());
-        setValueAt(executorName, rowIndex, Column.EXECUTOR.ordinal());
+        setValueAt(executorName, rowIndex, Column.PERFORMER.ordinal());
         setValueAt(taskDto.getOrderId(), rowIndex, Column.ORDER.ordinal());
         setValueAt(taskDto.getExecutedAt(), rowIndex, Column.EXECUTED_AT.ordinal());
     }
@@ -128,7 +128,7 @@ public class TaskTableModel extends DefaultTableModel {
         return new Object[]{
                 taskDto.getName(),
                 taskDto.getDescription(),
-                String.format("%s %s", taskDto.getExecutor().getFirstName(), taskDto.getExecutor().getLastName()),
+                String.format("%s %s", taskDto.getPerformer().getFirstName(), taskDto.getPerformer().getLastName()),
                 taskDto.getOrderId(),
                 taskDto.getExecutedAt()
         };

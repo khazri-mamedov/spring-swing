@@ -2,12 +2,12 @@ package org.jazzteam.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.action.CreateAction;
-import org.jazzteam.gui.action.DeleteAction;
-import org.jazzteam.gui.action.EditAction;
-import org.jazzteam.gui.action.MoveAction;
-import org.jazzteam.gui.action.SwapAction;
-import org.jazzteam.gui.action.TaskAction;
+import org.jazzteam.gui.action.task.CreateAction;
+import org.jazzteam.gui.action.task.DeleteAction;
+import org.jazzteam.gui.action.task.EditAction;
+import org.jazzteam.gui.action.task.MoveAction;
+import org.jazzteam.gui.action.task.SwapAction;
+import org.jazzteam.gui.action.task.TaskAction;
 import org.jazzteam.gui.event.MoveEventType;
 import org.jazzteam.mapper.TaskMapper;
 import org.jazzteam.model.TaskEntity;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
-    @Value("${message.broker.exchange.name}")
+    @Value("${message.broker.task.exchange.name}")
     private String exchangeName;
 
     private final TaskRepository taskRepository;

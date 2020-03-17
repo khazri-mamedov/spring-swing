@@ -13,8 +13,8 @@
                 <constraints nullable="false"/>
             </column>
             <column name="description" type="varchar(1024)"/>
-            <column name="executor_id" type="int">
-                <constraints nullable="false" foreignKeyName="fk_task_executor" references="executor(id)" />
+            <column name="performer_id" type="int">
+                <constraints nullable="false" foreignKeyName="fk_task_performer" references="performer(id)" />
             </column>
             <column name="order_id" type="int">
                 <constraints nullable="false"/>

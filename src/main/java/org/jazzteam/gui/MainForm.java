@@ -2,7 +2,6 @@ package org.jazzteam.gui;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.action.SwapAction;
 import org.jazzteam.gui.event.CreateEvent;
 import org.jazzteam.gui.event.DeleteEvent;
 import org.jazzteam.gui.event.EditEvent;
@@ -59,7 +58,7 @@ public class MainForm extends JFrame {
     @PostConstruct
     private void initUi() {
         setTitle(messageSource.getMessage("main.frame.layout", null, locale));
-        setSize(600, 600);
+        setSize(800, 800);
         setLayout(new GridLayout(4, 1));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
