@@ -25,7 +25,7 @@ public class RabbitMqConfig {
     @Value("${message.broker.exchange.name}")
     private String exchangeName;
 
-    private String queueName = UUID.randomUUID().toString();
+    private String queueName = "task" + UUID.randomUUID().toString();
 
     @Bean
     Queue testAppQueue() {
@@ -61,20 +61,5 @@ public class RabbitMqConfig {
     MessageListenerAdapter listenerAdapter(TaskService taskService) {
         // MessageListenerAdapter.defaultListenerMethod = "handleMessage"
         return new MessageListenerAdapter(taskService);
-    }
-
-    /**
-     * Creates queues on startup instead of first producer
-     */
-    @Bean
-    InitializingBean prepareQueues(AmqpAdmin amqpAdmin) {
-        return () -> {
-            Queue queue = testAppQueue();
-            FanoutExchange exchange = exchange();
-            Binding binding = testAppBinding(queue, exchange);
-            amqpAdmin.declareQueue(queue);
-            amqpAdmin.declareExchange(exchange);
-            amqpAdmin.declareBinding(binding);
-        };
     }
 }
