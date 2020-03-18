@@ -1,20 +1,20 @@
 package org.jazzteam.service;
 
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.event.MoveEventType;
+import org.jazzteam.gui.event.task.MoveEventType;
 
 import java.util.List;
 
 public interface TaskService {
-    List<TaskDto> getAllTasks();
+    List<TaskDto> getAllTasksOrdered();
 
-    void deleteSelectedTask(TaskDto taskDto);
+    void deleteSelected(TaskDto taskDto);
 
-    void deleteById(int id);
+    void deleteById(Integer id);
 
-    void updateTask(TaskDto taskDto);
+    void update(TaskDto taskDto);
 
-    void createTask(TaskDto taskDto);
+    void create(TaskDto taskDto);
 
     void moveTask(TaskDto firstSelectedTaskDto, TaskDto secondSelectedTaskDto, MoveEventType moveEventType);
 

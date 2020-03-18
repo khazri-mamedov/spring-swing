@@ -5,13 +5,9 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <changeSet author="Khazri_Mamedov" id="12032020_fill_executor_table">
-        <loadData file="data/tasks.csv" separator="," tableName="task" relativeToChangelogFile="true">
-            <column name="id" type="numeric"/>
-            <column name="name" type="string"/>
-            <column name="description" type="string"/>
-            <column name="performer_id" type="numeric"/>
-            <column name="order_id" type="numeric"/>
-            <column name="executed_at" type="date"/>
+        <loadData file="data/performers.csv" separator="," tableName="performer" relativeToChangelogFile="true">
+            <column name="first_name" type="string"/>
+            <column name="last_name" type="string"/>
         </loadData>
     </changeSet>
 </databaseChangeLog>

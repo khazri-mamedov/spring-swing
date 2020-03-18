@@ -1,14 +1,13 @@
 package org.jazzteam.service.impl;
 
-import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.action.CreateAction;
-import org.jazzteam.gui.action.DeleteAction;
-import org.jazzteam.gui.action.EditAction;
-import org.jazzteam.gui.action.MoveAction;
-import org.jazzteam.gui.action.SwapAction;
-import org.jazzteam.gui.action.TaskAction;
-import org.jazzteam.gui.event.MoveEventType;
+import org.jazzteam.gui.action.task.CreateAction;
+import org.jazzteam.gui.action.task.DeleteAction;
+import org.jazzteam.gui.action.task.EditAction;
+import org.jazzteam.gui.action.task.MoveAction;
+import org.jazzteam.gui.action.task.SwapAction;
+import org.jazzteam.gui.action.task.TaskAction;
+import org.jazzteam.gui.event.task.MoveEventType;
 import org.jazzteam.mapper.TaskMapper;
 import org.jazzteam.model.TaskEntity;
 import org.jazzteam.repository.TaskRepository;
@@ -23,16 +22,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-public class TaskServiceImpl implements TaskService {
-    @Value("${message.broker.exchange.name}")
+public class TaskServiceImpl
+        extends AbstractService<Integer, TaskDto, TaskAction, TaskEntity, TaskMapper, TaskRepository>
+        implements TaskService {
+    @Value("${message.broker.task.exchange.name}")
     private String exchangeName;
 
-    private final TaskRepository taskRepository;
-    private final TaskMapper taskMapper;
-    private final ExecutorService executorService;
-    private final AmqpTemplate amqpTemplate;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    public TaskServiceImpl(
+            TaskRepository repository,
+            TaskMapper mapper,
+            ExecutorService executorService,
+            AmqpTemplate amqpTemplate,
+            ApplicationEventPublisher applicationEventPublisher) {
+        super(repository, mapper, executorService, amqpTemplate, applicationEventPublisher);
+    }
 
     /**
      * Message listener registered @org.jazzteam.config.RabbitMqConfig
@@ -44,43 +47,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getAllTasks() {
-        return taskRepository.findAllByOrderByOrderId()
-                .stream().map(taskMapper::toDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public void deleteSelectedTask(TaskDto taskDto) {
-        executorService.execute(() -> {
-            deleteById(taskDto.getId());
-            TaskAction taskAction = new DeleteAction(taskDto.getId());
-            produceMessage(taskAction);
-        });
-    }
-
-    @Override
-    public void deleteById(int id) {
-        taskRepository.deleteById(id);
-    }
-
-    @Override
-    public void updateTask(TaskDto taskDto) {
-        executorService.execute(() -> {
-            TaskEntity updatedTaskEntity = taskRepository.save(taskMapper.toEntity(taskDto));
-            TaskDto updatedTaskDto = taskMapper.toDto(updatedTaskEntity);
-            TaskAction taskAction = new EditAction(updatedTaskDto);
-            produceMessage(taskAction);
-        });
-    }
-
-    @Override
-    public void createTask(TaskDto taskDto) {
-        executorService.execute(() -> {
-            TaskEntity savedTaskEntity = taskRepository.save(taskMapper.toEntity(taskDto));
-            TaskDto savedTaskDto = taskMapper.toDto(taskRepository.findByIdOrThrow(savedTaskEntity.getId()));
-            TaskAction taskAction = new CreateAction(savedTaskDto);
-            produceMessage(taskAction);
-        });
+    public List<TaskDto> getAllTasksOrdered() {
+        return repository.findAllByOrderByOrderId()
+                .stream().map(mapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -109,16 +78,32 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private void moveTasks(TaskDto firstSelectedTaskDto, TaskDto secondSelectedTaskDto) {
-        TaskEntity secondTaskEntity = taskMapper.toEntity(secondSelectedTaskDto);
-        TaskEntity firstTaskEntity = taskMapper.toEntity(firstSelectedTaskDto);
+        TaskEntity secondTaskEntity = mapper.toEntity(secondSelectedTaskDto);
+        TaskEntity firstTaskEntity = mapper.toEntity(firstSelectedTaskDto);
 
         secondTaskEntity.setOrderId(firstSelectedTaskDto.getOrderId());
         firstTaskEntity.setOrderId(secondSelectedTaskDto.getOrderId());
 
-        taskRepository.updateOrders(firstTaskEntity, secondTaskEntity);
+        repository.updateOrders(firstTaskEntity, secondTaskEntity);
     }
 
-    private void produceMessage(TaskAction taskAction) {
-        amqpTemplate.convertAndSend(exchangeName, "", taskAction);
+    @Override
+    protected TaskAction createDeleteAction(Integer id) {
+        return new DeleteAction(id);
+    }
+
+    @Override
+    protected TaskAction createCreateAction(TaskDto dto) {
+        return new CreateAction(dto);
+    }
+
+    @Override
+    protected TaskAction createEditAction(TaskDto dto) {
+        return new EditAction(dto);
+    }
+
+    @Override
+    protected String getExchangeName() {
+        return exchangeName;
     }
 }
