@@ -40,7 +40,7 @@ public class TaskServiceImpl implements TaskService {
      * @param taskAction execute logic
      */
     public void handleMessage(TaskAction taskAction) {
-        taskAction.execute(this, applicationEventPublisher);
+        taskAction.execute(applicationEventPublisher);
     }
 
     @Override

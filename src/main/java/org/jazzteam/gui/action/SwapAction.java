@@ -1,14 +1,8 @@
 package org.jazzteam.gui.action;
 
 import lombok.RequiredArgsConstructor;
-import org.jazzteam.dto.TaskDto;
 import org.jazzteam.gui.event.SwapEvent;
-import org.jazzteam.gui.table.TaskTableModel;
-import org.jazzteam.service.TaskService;
 import org.springframework.context.ApplicationEventPublisher;
-
-import java.awt.EventQueue;
-import java.util.Collections;
 
 @RequiredArgsConstructor
 public class SwapAction implements TaskAction {
@@ -18,9 +12,7 @@ public class SwapAction implements TaskAction {
     private final int secondSelectedTaskId;
 
     @Override
-    public void execute(
-            TaskService taskService,
-            ApplicationEventPublisher applicationEventPublisher) {
+    public void execute(ApplicationEventPublisher applicationEventPublisher) {
         applicationEventPublisher.publishEvent(new SwapEvent(this, firstSelectedTaskId, secondSelectedTaskId));
     }
 }
