@@ -1,9 +1,9 @@
-package org.jazzteam.gui.action.task;
+package org.jazzteam.gui.action.performer;
 
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.Serializable;
 
-public interface TaskAction extends Serializable {
+public interface PerformerAction extends Serializable {
     void execute(ApplicationEventPublisher applicationEventPublisher);
 }

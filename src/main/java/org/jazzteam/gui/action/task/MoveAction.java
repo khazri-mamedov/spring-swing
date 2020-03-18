@@ -1,9 +1,8 @@
 package org.jazzteam.gui.action.task;
 
 import lombok.RequiredArgsConstructor;
-import org.jazzteam.gui.event.MoveEvent;
-import org.jazzteam.gui.event.MoveEventType;
-import org.jazzteam.service.TaskService;
+import org.jazzteam.gui.event.task.MoveEvent;
+import org.jazzteam.gui.event.task.MoveEventType;
 import org.springframework.context.ApplicationEventPublisher;
 
 @RequiredArgsConstructor
@@ -15,9 +14,7 @@ public class MoveAction implements TaskAction {
     private final MoveEventType moveEventType;
 
     @Override
-    public void execute(
-            TaskService taskService,
-            ApplicationEventPublisher applicationEventPublisher) {
+    public void execute(ApplicationEventPublisher applicationEventPublisher) {
         applicationEventPublisher.publishEvent(
                 new MoveEvent(this, firstSelectedTaskId, secondSelectedTaskId, moveEventType));
     }

@@ -1,10 +1,11 @@
-package org.jazzteam.gui.table;
+package org.jazzteam.gui.table.task;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.PerformerDto;
 import org.jazzteam.dto.TaskDto;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -14,14 +15,13 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.time.LocalDate;
 import java.util.Locale;
 
 @RequiredArgsConstructor
-@Component
+@Component("taskCreateModal")
+@Lazy
 public class CreateModal extends JDialog {
     private static final long serialVersionUID = 8957483143302457227L;
 
@@ -39,12 +39,12 @@ public class CreateModal extends JDialog {
 
     @PostConstruct
     private void initUi() {
-        setTitle(messageSource.getMessage("create.dialog.layout", null, locale));
+        setTitle(messageSource.getMessage("create.task.dialog.layout", null, locale));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(500, 500);
 
         createFormPanel = new JPanel();
-        createFormPanel.setLayout(new GridLayout(5,2));
+        createFormPanel.setLayout(new GridLayout(5, 2));
 
         populateCreateFormPanel();
 

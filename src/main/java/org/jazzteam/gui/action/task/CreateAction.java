@@ -2,8 +2,7 @@ package org.jazzteam.gui.action.task;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.event.CreateEvent;
-import org.jazzteam.service.TaskService;
+import org.jazzteam.gui.event.task.CreateEvent;
 import org.springframework.context.ApplicationEventPublisher;
 
 @RequiredArgsConstructor
@@ -13,9 +12,7 @@ public class CreateAction implements TaskAction {
     private final TaskDto createdTaskDto;
 
     @Override
-    public void execute(
-            TaskService taskService,
-            ApplicationEventPublisher applicationEventPublisher) {
+    public void execute(ApplicationEventPublisher applicationEventPublisher) {
         applicationEventPublisher.publishEvent(new CreateEvent(this, createdTaskDto));
     }
 }

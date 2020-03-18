@@ -6,6 +6,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+import javax.swing.UIManager;
 import java.awt.EventQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

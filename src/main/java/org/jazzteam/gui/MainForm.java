@@ -2,18 +2,20 @@ package org.jazzteam.gui;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.event.CreateEvent;
-import org.jazzteam.gui.event.DeleteEvent;
-import org.jazzteam.gui.event.EditEvent;
-import org.jazzteam.gui.event.MoveEvent;
-import org.jazzteam.gui.event.MoveEventType;
-import org.jazzteam.gui.event.SwapEvent;
-import org.jazzteam.gui.table.CreateModal;
-import org.jazzteam.gui.table.EditModal;
+import org.jazzteam.gui.event.task.CreateEvent;
+import org.jazzteam.gui.event.task.DeleteEvent;
+import org.jazzteam.gui.event.task.EditEvent;
+import org.jazzteam.gui.event.task.MoveEvent;
+import org.jazzteam.gui.event.task.MoveEventType;
+import org.jazzteam.gui.event.task.SwapEvent;
+import org.jazzteam.gui.table.task.CreateModal;
+import org.jazzteam.gui.table.task.EditModal;
 import org.jazzteam.gui.table.task.TaskTable;
 import org.jazzteam.gui.table.task.TaskTableModel;
+import org.jazzteam.gui.util.TableUtils;
 import org.jazzteam.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
@@ -25,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
@@ -39,8 +42,6 @@ public class MainForm extends JFrame {
     private static final long serialVersionUID = -246288357976232130L;
 
     private final MessageSource messageSource;
-    private final CreateModal createModal;
-    private final EditModal editModal;
     private final TaskService taskService;
 
     private JPanel headButtonsPanel;
@@ -60,10 +61,19 @@ public class MainForm extends JFrame {
     @Lazy
     private PerformerForm performerForm;
 
+    @Autowired
+    @Lazy
+    private CreateModal taskCreateModal;
+
+    @Autowired
+    @Lazy
+    private EditModal taskEditModal;
+
     private Locale locale = LocaleContextHolder.getLocale();
 
     @PostConstruct
-    private void initUi() {
+    private void initUi() throws Exception {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         setTitle(messageSource.getMessage("main.frame.layout", null, locale));
         setSize(800, 800);
         setLayout(new GridLayout(4, 1));
@@ -143,13 +153,13 @@ public class MainForm extends JFrame {
     }
 
     private void setCreateButtonListener() {
-        createButton.addActionListener(event -> createModal.showDialog());
+        createButton.addActionListener(event -> taskCreateModal.showDialog());
     }
 
     private void setDeleteButtonListener() {
         deleteButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
-            if (isRowSelected(selectedRow)) {
+            if (TableUtils.isRowSelected(selectedRow)) {
                 TaskDto selectedTaskDto = taskTableModel.getTasks().get(selectedRow);
                 taskService.deleteSelectedTask(selectedTaskDto);
             }
@@ -159,9 +169,9 @@ public class MainForm extends JFrame {
     private void setEditButtonListener() {
         editButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
-            if (isRowSelected(selectedRow)) {
+            if (TableUtils.isRowSelected(selectedRow)) {
                 TaskDto selectedTaskDto = taskTableModel.getTasks().get(selectedRow);
-                editModal.showDialog(selectedTaskDto, selectedRow);
+                taskEditModal.showDialog(selectedTaskDto, selectedRow);
             }
         });
     }
@@ -169,7 +179,7 @@ public class MainForm extends JFrame {
     private void setUpButtonListener() {
         upButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
-            if (isRowSelected(selectedRow) && !isFirstRow(selectedRow)) {
+            if (TableUtils.isRowSelected(selectedRow) && !TableUtils.isFirstRow(selectedRow)) {
                 final TaskDto firstSelectedTaskDto = taskTableModel.getTasks().get(selectedRow);
                 final TaskDto secondSelectedTaskDto = taskTableModel.getTasks().get((selectedRow - 1));
                 taskService.moveTask(firstSelectedTaskDto, secondSelectedTaskDto, MoveEventType.UP);
@@ -180,7 +190,7 @@ public class MainForm extends JFrame {
     private void setDownButtonListener() {
         downButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
-            if (isRowSelected(selectedRow) && !isLastRow(selectedRow)) {
+            if (TableUtils.isRowSelected(selectedRow) && !isLastRow(selectedRow)) {
                 final TaskDto firstSelectedTaskDto = taskTableModel.getTasks().get(selectedRow);
                 final TaskDto secondSelectedTaskDto = taskTableModel.getTasks().get((selectedRow + 1));
                 taskService.moveTask(firstSelectedTaskDto, secondSelectedTaskDto, MoveEventType.DOWN);
@@ -213,14 +223,6 @@ public class MainForm extends JFrame {
         tasks.forEach(taskTableModel::addRow);
         taskTable = new TaskTable(taskTableModel);
         mainTablePanel = new JScrollPane(taskTable);
-    }
-
-    private boolean isRowSelected(int selectedRow) {
-        return selectedRow >= 0;
-    }
-
-    private boolean isFirstRow(int selectedRow) {
-        return selectedRow < 1;
     }
 
     private boolean isLastRow(int selectedRow) {

@@ -6,7 +6,6 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <changeSet author="Khazri_Mamedov" id="12032020_fill_executor_table">
         <loadData file="data/performers.csv" separator="," tableName="performer" relativeToChangelogFile="true">
-            <column name="id" type="numeric"/>
             <column name="first_name" type="string"/>
             <column name="last_name" type="string"/>
         </loadData>

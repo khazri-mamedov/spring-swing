@@ -1,4 +1,4 @@
-package org.jazzteam.gui.event;
+package org.jazzteam.gui.event.task;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;

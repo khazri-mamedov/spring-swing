@@ -3,20 +3,30 @@ package org.jazzteam.gui;
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.PerformerDto;
 import org.jazzteam.dto.TaskDto;
+import org.jazzteam.gui.event.performer.DeleteEvent;
+import org.jazzteam.gui.event.performer.CreateEvent;
+import org.jazzteam.gui.event.performer.EditEvent;
+import org.jazzteam.gui.table.performer.EditModal;
 import org.jazzteam.gui.table.performer.PerformerTable;
 import org.jazzteam.gui.table.performer.PerformerTableModel;
+import org.jazzteam.gui.table.performer.CreateModal;
+import org.jazzteam.gui.util.TableUtils;
 import org.jazzteam.service.PerformerService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.List;
@@ -40,11 +50,19 @@ public class PerformerForm extends JFrame {
     private JButton deleteButton;
     private JButton editButton;
 
-    private Locale locale = LocaleContextHolder.getLocale();
+    private Locale defaultLocale = LocaleContextHolder.getLocale();
+
+    @Autowired
+    @Lazy
+    private CreateModal performerCreateModal;
+
+    @Autowired
+    @Lazy
+    private EditModal performerEditModal;
 
     @PostConstruct
     private void initUi() {
-        setTitle(messageSource.getMessage("performer.frame.layout", null, locale));
+        setTitle(messageSource.getMessage("performer.frame.layout", null, defaultLocale));
         setSize(600, 600);
         setLayout(new GridLayout(4, 1));
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -57,6 +75,24 @@ public class PerformerForm extends JFrame {
 
         add(headButtonsPanel);
         add(performerTablePanel);
+    }
+
+    @EventListener
+    public void performerAdded(CreateEvent createEvent) {
+        performerTableModel.insertRows(createEvent.getSavedPerformerDto());
+    }
+
+    @EventListener
+    public void performerDeleted(DeleteEvent deleteEvent) {
+        int deletedTaskId = deleteEvent.getDeletedPerformerId();
+        EventQueue.invokeLater(() -> performerTableModel.removeRows(deletedTaskId));
+    }
+
+    @EventListener
+    public void performerEdited(EditEvent editEvent) {
+        final PerformerDto editedPerformerDto = editEvent.getEditedPerformerDto();
+        int rowIndex = performerTableModel.getPerformerRowIndex(editedPerformerDto.getId());
+        EventQueue.invokeLater(() -> performerTableModel.setValueAt(editedPerformerDto, rowIndex));
     }
 
     private void populatePerformerTablePanel() {
@@ -74,9 +110,9 @@ public class PerformerForm extends JFrame {
     }
 
     private void populateHeadButtonsPanel() {
-        createButton = new JButton(messageSource.getMessage("create.button", null, locale));
-        editButton = new JButton(messageSource.getMessage("edit.button", null, locale));
-        deleteButton = new JButton(messageSource.getMessage("delete.button", null, locale));
+        createButton = new JButton(messageSource.getMessage("create.button", null, defaultLocale));
+        editButton = new JButton(messageSource.getMessage("edit.button", null, defaultLocale));
+        deleteButton = new JButton(messageSource.getMessage("delete.button", null, defaultLocale));
 
         setCreateButtonListener();
         setEditButtonListener();
@@ -88,18 +124,31 @@ public class PerformerForm extends JFrame {
     }
 
     private void setCreateButtonListener() {
-        createButton.addActionListener(event -> {});
+        createButton.addActionListener(event -> performerCreateModal.showDialog());
     }
 
     private void setDeleteButtonListener() {
         deleteButton.addActionListener(event -> {
-
+            int selectedRow = performerTable.getSelectedRow();
+            if (TableUtils.isRowSelected(selectedRow)) {
+                PerformerDto selectedPerformerDto = performerTableModel.getPerformers().get(selectedRow);
+                if (performerService.isDeletable(selectedPerformerDto.getId())) {
+                    performerService.deleteSelectedPerformer(selectedPerformerDto);
+                    return;
+                }
+                final String deletable = messageSource.getMessage("non.deletable", null, defaultLocale);
+                JOptionPane.showMessageDialog(null, deletable);
+            }
         });
     }
 
     private void setEditButtonListener() {
         editButton.addActionListener(event -> {
-
+            int selectedRow = performerTable.getSelectedRow();
+            if (TableUtils.isRowSelected(selectedRow)) {
+                PerformerDto selectedPerformerDto = performerTableModel.getPerformers().get(selectedRow);
+                performerEditModal.showDialog(selectedPerformerDto, selectedRow);
+            }
         });
     }
 }

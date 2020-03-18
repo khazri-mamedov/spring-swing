@@ -2,8 +2,7 @@ package org.jazzteam.gui.action.task;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.event.EditEvent;
-import org.jazzteam.service.TaskService;
+import org.jazzteam.gui.event.task.EditEvent;
 import org.springframework.context.ApplicationEventPublisher;
 
 @RequiredArgsConstructor
@@ -13,9 +12,7 @@ public class EditAction implements TaskAction {
     private final TaskDto updatedTaskDto;
 
     @Override
-    public void execute(
-            TaskService taskService,
-            ApplicationEventPublisher applicationEventPublisher) {
+    public void execute(ApplicationEventPublisher applicationEventPublisher) {
         applicationEventPublisher.publishEvent(new EditEvent(this, updatedTaskDto));
     }
 }

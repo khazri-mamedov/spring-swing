@@ -8,7 +8,7 @@ import org.jazzteam.gui.action.task.EditAction;
 import org.jazzteam.gui.action.task.MoveAction;
 import org.jazzteam.gui.action.task.SwapAction;
 import org.jazzteam.gui.action.task.TaskAction;
-import org.jazzteam.gui.event.MoveEventType;
+import org.jazzteam.gui.event.task.MoveEventType;
 import org.jazzteam.mapper.TaskMapper;
 import org.jazzteam.model.TaskEntity;
 import org.jazzteam.repository.TaskRepository;
@@ -40,7 +40,7 @@ public class TaskServiceImpl implements TaskService {
      * @param taskAction execute logic
      */
     public void handleMessage(TaskAction taskAction) {
-        taskAction.execute(this, applicationEventPublisher);
+        taskAction.execute(applicationEventPublisher);
     }
 
     @Override

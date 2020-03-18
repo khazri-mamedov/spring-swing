@@ -1,12 +1,14 @@
-package org.jazzteam.gui.table;
+package org.jazzteam.gui.table.task;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.event.DeleteEvent;
-import org.jazzteam.gui.event.EditEvent;
-import org.jazzteam.gui.event.MoveEvent;
+import org.jazzteam.gui.event.task.DeleteEvent;
+import org.jazzteam.gui.event.task.EditEvent;
+import org.jazzteam.gui.event.task.MoveEvent;
+import org.jazzteam.gui.util.TableUtils;
 import org.jazzteam.service.TaskService;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -22,7 +24,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 @RequiredArgsConstructor
-@Component
+@Component("taskEditModal")
+@Lazy
 public class EditModal extends JDialog {
     private static final long serialVersionUID = -4874705556978842092L;
 
@@ -67,9 +70,7 @@ public class EditModal extends JDialog {
     @EventListener
     public void disposeIfDeleted(DeleteEvent deleteEvent) {
         if (Objects.nonNull(selectedTaskDto) && (selectedTaskDto.getId() == deleteEvent.getDeletedTaskId())) {
-            final String closed = messageSource.getMessage("edit.closed.delete", null, defaultLocale);
-            JOptionPane.showMessageDialog(null, closed);
-            dispose();
+            TableUtils.disposeIfDeleted(this, messageSource);
         }
     }
 
@@ -106,6 +107,7 @@ public class EditModal extends JDialog {
         this.selectedRow = selectedRow;
 
         populateEditFormPanel();
+        pack();
         setVisible(true);
     }
 

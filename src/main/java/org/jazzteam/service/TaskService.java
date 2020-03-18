@@ -1,7 +1,7 @@
 package org.jazzteam.service;
 
 import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.event.MoveEventType;
+import org.jazzteam.gui.event.task.MoveEventType;
 
 import java.util.List;
 

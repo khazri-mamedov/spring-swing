@@ -7,7 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.List;
 
 @Data
 @Entity
@@ -24,4 +26,8 @@ public class PerformerEntity {
 
     @Column(name = "last_name")
     private String lastName;
+
+    // Performance issue
+//    @ManyToOne
+//    private List<TaskEntity> tasks;
 }

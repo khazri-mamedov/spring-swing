@@ -28,4 +28,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Integer> {
     @Modifying
     @Query("update TaskEntity t set t.orderId = t.orderId + 1 where t.orderId >= :nextOrder")
     void updateOrders(@Param("nextOrder") int nextOrder);
+
+    @Query("select case when count(t) > 0 then true else false end from TaskEntity t where t.performer.id = :performerId")
+    boolean existsPerformer(@Param("performerId") int performerId);
 }
