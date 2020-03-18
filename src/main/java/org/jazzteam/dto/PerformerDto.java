@@ -1,11 +1,13 @@
 package org.jazzteam.dto;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class PerformerDto implements Serializable {
+public class PerformerDto extends AbstractDto<Integer> implements Serializable {
     private static final long serialVersionUID = 7959675233455749868L;
 
     private Integer id;

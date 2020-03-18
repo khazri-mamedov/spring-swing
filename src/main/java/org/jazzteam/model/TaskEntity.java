@@ -15,8 +15,7 @@ import java.time.LocalDate;
 @Data
 @Entity
 @Table(name = "task")
-public class TaskEntity {
-
+public class TaskEntity implements AbstractEntity<Integer> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

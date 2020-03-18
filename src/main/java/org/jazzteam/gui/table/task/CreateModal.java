@@ -95,7 +95,7 @@ public class CreateModal extends JDialog {
         taskDto.setPerformer(performerDto);
         taskDto.setOrderId(Integer.parseInt(orderField.getText().trim()));
         taskDto.setExecutedAt(LocalDate.now());
-        taskService.createTask(taskDto);
+        taskService.create(taskDto);
         dispose();
     }
 }

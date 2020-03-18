@@ -98,7 +98,7 @@ public class EditModal extends JDialog {
         selectedPerformerDto.setFirstName(firstNameField.getText());
         selectedPerformerDto.setLastName(lastNameField.getText());
 
-        performerService.updatePerformer(selectedPerformerDto);
+        performerService.update(selectedPerformerDto);
 
         dispose();
     }

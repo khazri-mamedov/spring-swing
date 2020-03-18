@@ -5,15 +5,15 @@ import org.jazzteam.dto.PerformerDto;
 import java.util.List;
 
 public interface PerformerService {
-    List<PerformerDto> getAllPerformers();
+    List<PerformerDto> getAll();
 
-    void deleteSelectedPerformer(PerformerDto performerDto);
+    void deleteSelected(PerformerDto performerDto);
 
-    void deleteById(int id);
+    void deleteById(Integer id);
 
     boolean isDeletable(int id);
 
-    void createPerformer(PerformerDto performerDto);
+    void create(PerformerDto performerDto);
 
-    void updatePerformer(PerformerDto performerDto);
+    void update(PerformerDto performerDto);
 }

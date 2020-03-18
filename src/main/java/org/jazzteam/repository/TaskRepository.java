@@ -12,11 +12,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
-public interface TaskRepository extends JpaRepository<TaskEntity, Integer> {
-    default TaskEntity findByIdOrThrow(Integer id) {
-        return findById(id).orElseThrow(EntityNotFoundException::new);
-    }
-
+public interface TaskRepository extends CrudRepository<TaskEntity, Integer> {
     @Transactional
     default void updateOrders(TaskEntity swapTaskEntity, TaskEntity selectedTaskEntity) {
         save(swapTaskEntity);

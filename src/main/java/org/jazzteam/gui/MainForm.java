@@ -15,7 +15,6 @@ import org.jazzteam.gui.table.task.TaskTableModel;
 import org.jazzteam.gui.util.TableUtils;
 import org.jazzteam.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
@@ -32,6 +31,7 @@ import javax.swing.WindowConstants;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -90,14 +90,19 @@ public class MainForm extends JFrame {
     }
 
     @EventListener
+    public void performerEdited(org.jazzteam.gui.event.performer.EditEvent editEvent) {
+        taskTableModel.updatePerformer(editEvent.getEditedPerformerDto());
+    }
+
+    @EventListener
     public void taskAdded(CreateEvent createEvent) {
-        taskTableModel.insertRows(createEvent.getSavedTaskDto());
+        taskTableModel.insertRows(Collections.singletonList(createEvent.getSavedTaskDto()));
     }
 
     @EventListener
     public void taskEdited(EditEvent editEvent) {
         final TaskDto editedTaskDto = editEvent.getEditedTaskDto();
-        int rowIndex = taskTableModel.getTaskRowIndex(editedTaskDto.getId());
+        int rowIndex = taskTableModel.getDtoRowIndex(editedTaskDto.getId());
         EventQueue.invokeLater(() -> taskTableModel.setValueAt(editedTaskDto, rowIndex));
     }
 
@@ -109,7 +114,7 @@ public class MainForm extends JFrame {
 
     @EventListener
     public void selectedRowChanged(MoveEvent moveEvent) {
-        int selectedRow = taskTableModel.getTaskRowIndex(moveEvent.getFirstSelectedTaskId());
+        int selectedRow = taskTableModel.getDtoRowIndex(moveEvent.getFirstSelectedTaskId());
         int currentSelectedRow = taskTable.getSelectedRow();
         taskTableModel.moveTasks(moveEvent.getFirstSelectedTaskId(), moveEvent.getSecondSelectedTaskId());
         if (currentSelectedRow == selectedRow) {
@@ -160,8 +165,8 @@ public class MainForm extends JFrame {
         deleteButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (TableUtils.isRowSelected(selectedRow)) {
-                TaskDto selectedTaskDto = taskTableModel.getTasks().get(selectedRow);
-                taskService.deleteSelectedTask(selectedTaskDto);
+                TaskDto selectedTaskDto = taskTableModel.getContainer().get(selectedRow);
+                taskService.deleteSelected(selectedTaskDto);
             }
         });
     }
@@ -170,7 +175,7 @@ public class MainForm extends JFrame {
         editButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (TableUtils.isRowSelected(selectedRow)) {
-                TaskDto selectedTaskDto = taskTableModel.getTasks().get(selectedRow);
+                TaskDto selectedTaskDto = taskTableModel.getContainer().get(selectedRow);
                 taskEditModal.showDialog(selectedTaskDto, selectedRow);
             }
         });
@@ -180,8 +185,8 @@ public class MainForm extends JFrame {
         upButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (TableUtils.isRowSelected(selectedRow) && !TableUtils.isFirstRow(selectedRow)) {
-                final TaskDto firstSelectedTaskDto = taskTableModel.getTasks().get(selectedRow);
-                final TaskDto secondSelectedTaskDto = taskTableModel.getTasks().get((selectedRow - 1));
+                final TaskDto firstSelectedTaskDto = taskTableModel.getContainer().get(selectedRow);
+                final TaskDto secondSelectedTaskDto = taskTableModel.getContainer().get((selectedRow - 1));
                 taskService.moveTask(firstSelectedTaskDto, secondSelectedTaskDto, MoveEventType.UP);
             }
         });
@@ -191,8 +196,8 @@ public class MainForm extends JFrame {
         downButton.addActionListener(event -> {
             int selectedRow = taskTable.getSelectedRow();
             if (TableUtils.isRowSelected(selectedRow) && !isLastRow(selectedRow)) {
-                final TaskDto firstSelectedTaskDto = taskTableModel.getTasks().get(selectedRow);
-                final TaskDto secondSelectedTaskDto = taskTableModel.getTasks().get((selectedRow + 1));
+                final TaskDto firstSelectedTaskDto = taskTableModel.getContainer().get(selectedRow);
+                final TaskDto secondSelectedTaskDto = taskTableModel.getContainer().get((selectedRow + 1));
                 taskService.moveTask(firstSelectedTaskDto, secondSelectedTaskDto, MoveEventType.DOWN);
             }
         });
@@ -204,8 +209,8 @@ public class MainForm extends JFrame {
             if (selectedRows.length == 2) {
                 int firstRowIndex = selectedRows[0];
                 int secondRowIndex = selectedRows[1];
-                final TaskDto firstSelectedTaskDto = taskTableModel.getTasks().get(firstRowIndex);
-                final TaskDto secondSelectedTaskDto = taskTableModel.getTasks().get((secondRowIndex));
+                final TaskDto firstSelectedTaskDto = taskTableModel.getContainer().get(firstRowIndex);
+                final TaskDto secondSelectedTaskDto = taskTableModel.getContainer().get((secondRowIndex));
                 taskService.swapTasks(firstSelectedTaskDto, secondSelectedTaskDto);
             }
         });
@@ -219,13 +224,13 @@ public class MainForm extends JFrame {
 
     private void populateMainTablePanel() {
         taskTableModel = new TaskTableModel();
-        List<TaskDto> tasks = taskService.getAllTasks();
+        List<TaskDto> tasks = taskService.getAllTasksOrdered();
         tasks.forEach(taskTableModel::addRow);
         taskTable = new TaskTable(taskTableModel);
         mainTablePanel = new JScrollPane(taskTable);
     }
 
     private boolean isLastRow(int selectedRow) {
-        return selectedRow == taskTableModel.getTasks().size() - 1;
+        return selectedRow == taskTableModel.getContainer().size() - 1;
     }
 }

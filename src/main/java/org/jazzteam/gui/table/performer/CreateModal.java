@@ -80,7 +80,7 @@ public class CreateModal extends JDialog {
         performerDto.setLastName(lastNameField.getText());
         ;
 
-        performerService.createPerformer(performerDto);
+        performerService.create(performerDto);
         dispose();
     }
 }

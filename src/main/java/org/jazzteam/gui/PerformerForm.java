@@ -2,14 +2,13 @@ package org.jazzteam.gui;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.PerformerDto;
-import org.jazzteam.dto.TaskDto;
-import org.jazzteam.gui.event.performer.DeleteEvent;
 import org.jazzteam.gui.event.performer.CreateEvent;
+import org.jazzteam.gui.event.performer.DeleteEvent;
 import org.jazzteam.gui.event.performer.EditEvent;
+import org.jazzteam.gui.table.performer.CreateModal;
 import org.jazzteam.gui.table.performer.EditModal;
 import org.jazzteam.gui.table.performer.PerformerTable;
 import org.jazzteam.gui.table.performer.PerformerTableModel;
-import org.jazzteam.gui.table.performer.CreateModal;
 import org.jazzteam.gui.util.TableUtils;
 import org.jazzteam.service.PerformerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,10 @@ import javax.swing.WindowConstants;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 // TODO create pair class one for GUI init. another for working with data (i.e GUI Designer)
 @Component
@@ -79,20 +80,29 @@ public class PerformerForm extends JFrame {
 
     @EventListener
     public void performerAdded(CreateEvent createEvent) {
-        performerTableModel.insertRows(createEvent.getSavedPerformerDto());
+        // Lazy Bean created because of event listener
+        if (Objects.nonNull(performerTableModel)) {
+            performerTableModel.insertRows(Collections.singletonList(createEvent.getSavedPerformerDto()));
+        }
     }
 
     @EventListener
     public void performerDeleted(DeleteEvent deleteEvent) {
-        int deletedTaskId = deleteEvent.getDeletedPerformerId();
-        EventQueue.invokeLater(() -> performerTableModel.removeRows(deletedTaskId));
+        // Lazy Bean created because of event listener
+        if (Objects.nonNull(performerTableModel)) {
+            int deletedTaskId = deleteEvent.getDeletedPerformerId();
+            EventQueue.invokeLater(() -> performerTableModel.removeRows(deletedTaskId));
+        }
     }
 
     @EventListener
     public void performerEdited(EditEvent editEvent) {
-        final PerformerDto editedPerformerDto = editEvent.getEditedPerformerDto();
-        int rowIndex = performerTableModel.getPerformerRowIndex(editedPerformerDto.getId());
-        EventQueue.invokeLater(() -> performerTableModel.setValueAt(editedPerformerDto, rowIndex));
+        // Lazy Bean created because of event listener
+        if (Objects.nonNull(performerTableModel)) {
+            final PerformerDto editedPerformerDto = editEvent.getEditedPerformerDto();
+            int rowIndex = performerTableModel.getDtoRowIndex(editedPerformerDto.getId());
+            EventQueue.invokeLater(() -> performerTableModel.setValueAt(editedPerformerDto, rowIndex));
+        }
     }
 
     private void populatePerformerTablePanel() {
@@ -102,7 +112,7 @@ public class PerformerForm extends JFrame {
 
     public void showDialog() {
         performerTableModel = new PerformerTableModel();
-        List<PerformerDto>  performers = performerService.getAllPerformers();
+        List<PerformerDto> performers = performerService.getAll();
         performers.forEach(performerTableModel::addRow);
         performerTable.setModel(performerTableModel);
 
@@ -131,9 +141,9 @@ public class PerformerForm extends JFrame {
         deleteButton.addActionListener(event -> {
             int selectedRow = performerTable.getSelectedRow();
             if (TableUtils.isRowSelected(selectedRow)) {
-                PerformerDto selectedPerformerDto = performerTableModel.getPerformers().get(selectedRow);
+                PerformerDto selectedPerformerDto = performerTableModel.getContainer().get(selectedRow);
                 if (performerService.isDeletable(selectedPerformerDto.getId())) {
-                    performerService.deleteSelectedPerformer(selectedPerformerDto);
+                    performerService.deleteSelected(selectedPerformerDto);
                     return;
                 }
                 final String deletable = messageSource.getMessage("non.deletable", null, defaultLocale);
@@ -146,7 +156,7 @@ public class PerformerForm extends JFrame {
         editButton.addActionListener(event -> {
             int selectedRow = performerTable.getSelectedRow();
             if (TableUtils.isRowSelected(selectedRow)) {
-                PerformerDto selectedPerformerDto = performerTableModel.getPerformers().get(selectedRow);
+                PerformerDto selectedPerformerDto = performerTableModel.getContainer().get(selectedRow);
                 performerEditModal.showDialog(selectedPerformerDto, selectedRow);
             }
         });
