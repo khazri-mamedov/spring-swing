@@ -8,7 +8,6 @@ import java.awt.EventQueue;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,7 +26,8 @@ public class TaskTableModel extends AbstractTableModel<Integer, TaskDto> {
     public void updatePerformer(PerformerDto performerDto) {
         String performerName = String.format("%s %s", performerDto.getFirstName(), performerDto.getLastName());
         getRowIndicesByPerformerId(performerDto.getId())
-                .forEach(rowIndex -> setValueAt(performerName, rowIndex, Column.PERFORMER.ordinal()));
+                .forEach(rowIndex -> EventQueue.invokeLater(() ->
+                        setValueAt(performerName, rowIndex, Column.PERFORMER.ordinal())));
     }
 
     private Set<Integer> getRowIndicesByPerformerId(int id) {
