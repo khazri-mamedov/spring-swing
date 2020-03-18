@@ -23,8 +23,8 @@ public class PerformerTableModel extends AbstractTableModel<Integer, PerformerDt
     }
 
     @Override
-    protected void run() {
-
+    protected void execute() {
+        // Custom logic while insert goes here
     }
 
     public void setValueAt(PerformerDto performerDto, int rowIndex) {

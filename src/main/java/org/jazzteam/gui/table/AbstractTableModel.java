@@ -29,7 +29,7 @@ public abstract class AbstractTableModel<ID, T extends AbstractDto<ID>> extends 
 
     public void insertRow(T dto) {
         container.add(dto);
-        run();
+        execute();
         int insertedIndex = container.indexOf(dto);
         EventQueue.invokeLater(() -> insertRow(insertedIndex, createRowObject(dto)));
     }
@@ -67,5 +67,5 @@ public abstract class AbstractTableModel<ID, T extends AbstractDto<ID>> extends 
     protected abstract Object[] createRowObject(T dto);
 
     // Run custom logic
-    protected abstract void run();
+    protected abstract void execute();
 }
