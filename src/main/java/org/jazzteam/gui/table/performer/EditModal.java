@@ -2,7 +2,6 @@ package org.jazzteam.gui.table.performer;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.PerformerDto;
-import org.jazzteam.dto.TaskDto;
 import org.jazzteam.gui.event.performer.DeleteEvent;
 import org.jazzteam.gui.event.performer.EditEvent;
 import org.jazzteam.gui.util.TableUtils;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.FlowLayout;
