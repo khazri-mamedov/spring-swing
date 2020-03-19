@@ -79,8 +79,7 @@ public class EditModal extends JDialog {
         TaskDto editedTaskDto = editEvent.getEditedTaskDto();
         if (Objects.nonNull(selectedTaskDto)
                 && (selectedTaskDto.getId().equals(editedTaskDto.getId()))) {
-            final String edited = messageSource.getMessage("edited.before", null, defaultLocale);
-            JOptionPane.showMessageDialog(null, edited);
+            TableUtils.showNotification(messageSource, "edited.before");
             setFields(editedTaskDto);
         }
     }

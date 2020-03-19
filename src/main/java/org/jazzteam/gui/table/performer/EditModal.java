@@ -2,7 +2,9 @@ package org.jazzteam.gui.table.performer;
 
 import lombok.RequiredArgsConstructor;
 import org.jazzteam.dto.PerformerDto;
+import org.jazzteam.dto.TaskDto;
 import org.jazzteam.gui.event.performer.DeleteEvent;
+import org.jazzteam.gui.event.performer.EditEvent;
 import org.jazzteam.gui.util.TableUtils;
 import org.jazzteam.service.PerformerService;
 import org.springframework.context.MessageSource;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.FlowLayout;
@@ -69,6 +72,16 @@ public class EditModal extends JDialog {
         if (Objects.nonNull(selectedPerformerDto)
                 && (selectedPerformerDto.getId() == deleteEvent.getDeletedPerformerId())) {
             TableUtils.disposeIfDeleted(this, messageSource);
+        }
+    }
+
+    @EventListener
+    public void notifyAndUpdate(EditEvent editEvent) {
+        PerformerDto editedPerformerDto = editEvent.getEditedPerformerDto();
+        if (Objects.nonNull(selectedPerformerDto)
+                && (selectedPerformerDto.getId().equals(editedPerformerDto.getId()))) {
+            TableUtils.showNotification(messageSource, "edited.before");
+            setFields(editedPerformerDto);
         }
     }
 

@@ -11,18 +11,23 @@ public final class TableUtils {
         throw new AssertionError();
     }
 
-    public static boolean isRowSelected(int selectedRow) {
+    public static boolean isRowSelected(final int selectedRow) {
         return selectedRow >= 0;
     }
 
-    public static boolean isFirstRow(int selectedRow) {
+    public static boolean isFirstRow(final int selectedRow) {
         return selectedRow < 1;
     }
 
-    public static void disposeIfDeleted(Dialog dialog, MessageSource messageSource) {
+    public static void disposeIfDeleted(Dialog dialog, final MessageSource messageSource) {
         final String closed
                 = messageSource.getMessage("edit.closed.delete", null, LocaleContextHolder.getLocale());
         JOptionPane.showMessageDialog(null, closed);
         dialog.dispose();
+    }
+
+    public static void showNotification(final MessageSource messageSource, String message) {
+        final String edited = messageSource.getMessage(message, null, LocaleContextHolder.getLocale());
+        JOptionPane.showMessageDialog(null, edited);
     }
 }
