@@ -40,7 +40,6 @@ public class EditModal extends JDialog {
     private JTextField nameField;
     private JTextField executorField;
     private JTextField descriptionField;
-    //private JTextField orderField;
 
     @PostConstruct
     private void initUi() {
@@ -55,12 +54,10 @@ public class EditModal extends JDialog {
         nameField = new JTextField(30);
         descriptionField = new JTextField(30);
         executorField = new JTextField(30);
-        //orderField = new JTextField(30);
 
         editFormPanel.add(nameField);
         editFormPanel.add(descriptionField);
         editFormPanel.add(executorField);
-        //editFormPanel.add(orderField);
         editFormPanel.add(editButton);
         setEditButtonListener();
         add(editFormPanel);

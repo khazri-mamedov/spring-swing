@@ -5,7 +5,6 @@ import org.jazzteam.dto.AbstractDto;
 import org.jazzteam.gui.exception.DtoNotFoundException;
 
 import javax.swing.table.DefaultTableModel;
-import java.awt.EventQueue;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +28,7 @@ public abstract class AbstractTableModel<ID, T extends AbstractDto<ID>> extends 
 
     public void insertRow(T dto) {
         container.add(dto);
-        execute();
+        runBeforeInsert();
         int insertedIndex = container.indexOf(dto);
         insertRow(insertedIndex, createRowObject(dto));
     }
@@ -67,5 +66,5 @@ public abstract class AbstractTableModel<ID, T extends AbstractDto<ID>> extends 
     protected abstract Object[] createRowObject(T dto);
 
     // Run custom logic
-    protected void execute() {};
+    protected void runBeforeInsert() {};
 }

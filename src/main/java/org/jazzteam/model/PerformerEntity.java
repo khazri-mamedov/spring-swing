@@ -23,8 +23,4 @@ public class PerformerEntity implements AbstractEntity<Integer> {
 
     @Column(name = "last_name")
     private String lastName;
-
-    // Performance issue
-//    @ManyToOne
-//    private List<TaskEntity> tasks;
 }
