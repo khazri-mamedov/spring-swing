@@ -16,6 +16,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -112,7 +113,7 @@ public class PerformerForm extends JFrame {
 
     public void showDialog() {
         performerTableModel = new PerformerTableModel();
-        List<PerformerDto> performers = performerService.getAll();
+        List<PerformerDto> performers = performerService.getAllOrdered(Sort.by("id"));
         performers.forEach(performerTableModel::addRow);
         performerTable.setModel(performerTableModel);
 

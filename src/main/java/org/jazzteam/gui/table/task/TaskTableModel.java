@@ -24,7 +24,7 @@ public class TaskTableModel extends AbstractTableModel<Integer, TaskDto> {
     }
 
     public void updatePerformer(PerformerDto performerDto) {
-        String performerName = String.format("%s %s", performerDto.getFirstName(), performerDto.getLastName());
+        String performerName = performerDto.toString();
         getRowIndicesByPerformerId(performerDto.getId())
                 .forEach(rowIndex -> EventQueue.invokeLater(() ->
                         setValueAt(performerName, rowIndex, Column.PERFORMER.ordinal())));
@@ -42,7 +42,7 @@ public class TaskTableModel extends AbstractTableModel<Integer, TaskDto> {
         container.set(rowIndex, taskDto);
 
         PerformerDto performerDto = taskDto.getPerformer();
-        String performerName = String.format("%s %s", performerDto.getFirstName(), performerDto.getLastName());
+        String performerName = performerDto.toString();
 
         setValueAt(taskDto.getName(), rowIndex, Column.NAME.ordinal());
         setValueAt(taskDto.getDescription(), rowIndex, Column.DESCRIPTION.ordinal());
@@ -92,7 +92,7 @@ public class TaskTableModel extends AbstractTableModel<Integer, TaskDto> {
         return new Object[]{
                 taskDto.getName(),
                 taskDto.getDescription(),
-                String.format("%s %s", taskDto.getPerformer().getFirstName(), taskDto.getPerformer().getLastName()),
+                taskDto.getPerformer(),
                 taskDto.getOrderId(),
                 taskDto.getExecutedAt()
         };
