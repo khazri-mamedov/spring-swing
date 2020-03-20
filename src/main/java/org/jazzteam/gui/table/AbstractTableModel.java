@@ -2,7 +2,7 @@ package org.jazzteam.gui.table;
 
 import lombok.Getter;
 import org.jazzteam.dto.AbstractDto;
-import org.jazzteam.gui.exception.TaskNotFoundException;
+import org.jazzteam.gui.exception.DtoNotFoundException;
 
 import javax.swing.table.DefaultTableModel;
 import java.awt.EventQueue;
@@ -31,7 +31,7 @@ public abstract class AbstractTableModel<ID, T extends AbstractDto<ID>> extends 
         container.add(dto);
         execute();
         int insertedIndex = container.indexOf(dto);
-        EventQueue.invokeLater(() -> insertRow(insertedIndex, createRowObject(dto)));
+        insertRow(insertedIndex, createRowObject(dto));
     }
 
     public void insertRows(List<T> dtos) {
@@ -42,7 +42,7 @@ public abstract class AbstractTableModel<ID, T extends AbstractDto<ID>> extends 
         T foundDto = container
                 .stream()
                 .filter(dto -> dto.getId().equals(dtoId))
-                .findFirst().orElseThrow(() -> new TaskNotFoundException(dtoId));
+                .findFirst().orElseThrow(() -> new DtoNotFoundException(dtoId));
         return container.indexOf(foundDto);
     }
 
@@ -67,5 +67,5 @@ public abstract class AbstractTableModel<ID, T extends AbstractDto<ID>> extends 
     protected abstract Object[] createRowObject(T dto);
 
     // Run custom logic
-    protected abstract void execute();
+    protected void execute() {};
 }

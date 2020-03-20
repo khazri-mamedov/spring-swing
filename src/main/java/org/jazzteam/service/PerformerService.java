@@ -1,11 +1,14 @@
 package org.jazzteam.service;
 
 import org.jazzteam.dto.PerformerDto;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
 public interface PerformerService {
     List<PerformerDto> getAll();
+
+    List<PerformerDto> getAllOrdered(Sort sort);
 
     void deleteSelected(PerformerDto performerDto);
 

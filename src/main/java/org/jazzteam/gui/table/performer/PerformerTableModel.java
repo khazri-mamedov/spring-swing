@@ -22,11 +22,6 @@ public class PerformerTableModel extends AbstractTableModel<Integer, PerformerDt
         };
     }
 
-    @Override
-    protected void execute() {
-        // Custom logic while insert goes here
-    }
-
     public void setValueAt(PerformerDto performerDto, int rowIndex) {
         container.set(rowIndex, performerDto);
 

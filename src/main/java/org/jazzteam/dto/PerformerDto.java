@@ -13,4 +13,9 @@ public class PerformerDto extends AbstractDto<Integer> implements Serializable {
     private Integer id;
     private String firstName;
     private String lastName;
+
+    @Override
+    public String toString() {
+        return String.format("%s %s", getFirstName(), getLastName());
+    }
 }

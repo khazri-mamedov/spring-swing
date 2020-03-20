@@ -101,7 +101,7 @@ public class TaskTableModel extends AbstractTableModel<Integer, TaskDto> {
     @Override
     protected void execute() {
         container = container
-                .parallelStream()
+                .stream()
                 .sorted(Comparator.comparingInt(TaskDto::getOrderId))
                 .collect(Collectors.toList());
     }

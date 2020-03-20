@@ -7,11 +7,21 @@ import org.jazzteam.model.AbstractEntity;
 import org.jazzteam.repository.CrudRepository;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
+/**
+ *
+ * @param <U> Id
+ * @param <D> DTO
+ * @param <A> Action
+ * @param <E> Entity
+ * @param <M> Mapper
+ * @param <R> Repository
+ */
 @RequiredArgsConstructor
 public abstract class AbstractService<U, D extends AbstractDto<U>, A,
         E extends AbstractEntity<U>, M extends AbstractMapper<D, E>, R extends CrudRepository<E, U>> {
@@ -53,6 +63,10 @@ public abstract class AbstractService<U, D extends AbstractDto<U>, A,
 
     public List<D> getAll() {
         return repository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
+    }
+
+    public List<D> getAllOrdered(Sort sort) {
+        return repository.findAll(sort).stream().map(mapper::toDto).collect(Collectors.toList());
     }
 
     protected abstract A createDeleteAction(U id);
