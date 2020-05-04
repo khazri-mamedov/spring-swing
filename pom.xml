@@ -8,7 +8,7 @@
         <version>2.2.5.RELEASE</version>
         <relativePath/>
     </parent>
-    <groupId>org.jazzteam</groupId>
+    <groupId>org.example</groupId>
     <artifactId>test-app</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>test-app</name>
