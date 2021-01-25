@@ -1,0 +1,21 @@
+version: '3.3'
+
+services:
+  db:
+    container_name: spring-swing-db
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "root"
+    volumes:
+      - ./src/main/resources/db:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+  message-broker:
+    container_name: spring-swing-message-broker
+    image: rabbitmq:3.8.11-alpine
+    ports:
+      - 4369:4369
+      - 5671:5671
+      - 5672:5672
+

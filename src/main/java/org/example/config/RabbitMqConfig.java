@@ -27,8 +27,8 @@ public class RabbitMqConfig {
     @Value("${message.broker.performer.exchange.name}")
     private String performerExchangeName;
 
-    private String taskQueueName = "task" + UUID.randomUUID().toString();
-    private String performerQueueName = "executor" + UUID.randomUUID().toString();
+    private final String taskQueueName = "task" + UUID.randomUUID().toString();
+    private final String performerQueueName = "executor" + UUID.randomUUID().toString();
 
     @Bean
     Queue taskQueue() {

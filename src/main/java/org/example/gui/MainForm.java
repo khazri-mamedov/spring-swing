@@ -69,7 +69,7 @@ public class MainForm extends JFrame {
     @Lazy
     private EditModal taskEditModal;
 
-    private Locale locale = LocaleContextHolder.getLocale();
+    private final Locale locale = LocaleContextHolder.getLocale();
 
     @PostConstruct
     private void initUi() throws Exception {
