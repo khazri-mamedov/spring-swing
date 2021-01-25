@@ -15,7 +15,5 @@ services:
     container_name: spring-swing-message-broker
     image: rabbitmq:3.8.11-alpine
     ports:
-      - 4369:4369
-      - 5671:5671
       - 5672:5672
 
